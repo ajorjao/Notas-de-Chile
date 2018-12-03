@@ -316,15 +316,15 @@ filtros = {
 			if (cant_colegios > max_cant_colegios_region) {max_cant_colegios_region = cant_colegios};
 			if (cant_colegios < min_cant_colegios_region) {min_cant_colegios_region = cant_colegios};
 			data_regiones.push({
-				Nombre: nombre_region, N_Colegios: region.N_Colegios, Promedio_Notas: promedio_nota, Longitude: +region.Longitude, Latitude: +region.Latitude
+				Nombre: nombre_region, N_Colegios: region.N_Colegios, Promedio_Notas: promedio_nota, Longitude: +region.Longitude, Latitude: +region.Latitude, 
 			})
-			for (var j = 0; j < Object.keys(region).length; j++) {
-				nombre_comuna = Object.keys(region)[j];
+			for (var j = 0; j < Object.keys(region.comunas).length; j++) {
+				nombre_comuna = Object.keys(region.comunas)[j];
 				//esto se deberia perfeccionar agregando las comunas en un item "comunas" de cada region... pero no hay tiempo ahora u.u
-				if (nombre_comuna == "N_Colegios" || nombre_comuna == "N_Cursos" || nombre_comuna == "N_Cursos_Mujeres" || nombre_comuna == "N_Cursos_Hombres" || nombre_comuna == "Suma_Nota_Promedio" || nombre_comuna == "Suma_Nota_Mujeres" || nombre_comuna == "Suma_Nota_Hombres" || nombre_comuna == "Latitude" || nombre_comuna == "Longitude") {
-					continue;
-				}
-				comuna = region[nombre_comuna];
+				// if (nombre_comuna == "N_Colegios" || nombre_comuna == "N_Cursos" || nombre_comuna == "N_Cursos_Mujeres" || nombre_comuna == "N_Cursos_Hombres" || nombre_comuna == "Suma_Nota_Promedio" || nombre_comuna == "Suma_Nota_Mujeres" || nombre_comuna == "Suma_Nota_Hombres" || nombre_comuna == "Latitude" || nombre_comuna == "Longitude") {
+				// 	continue;
+				// }
+				comuna = region.comunas[nombre_comuna];
 
 				if (filtros.Genero == "Mujeres"){
 					promedio_nota = (comuna.Suma_Nota_Mujeres/comuna.N_Cursos_Mujeres);
@@ -364,7 +364,7 @@ filtros = {
 
 	});
 
-	// recopilacion de datos y se guardan en "promedio_data"
+	// recopilacion de datos y se guardan en "promedio_data", por cada fila del csv se ejecuta el siguiente codigo
 	function type(d) {
 		if (filtros.Dependencia_Colegio != null && filtros.Dependencia_Colegio != d.Dependencia_Colegio) {
 			return null;
@@ -379,24 +379,36 @@ filtros = {
 		}
 
 
-		if (d.Region_Colegio in promedio_data){
-			if (d.Comuna_Colegio in promedio_data[d.Region_Colegio]) {
-				if (d.Nombre_Colegio in promedio_data[d.Region_Colegio][d.Comuna_Colegio]){
+		if (d.Region_Colegio in promedio_data){ //si existía la reguion
+			//se suma la nota del colegio actual a la ponderacion de la region
+			promedio_data[d.Region_Colegio].Suma_Nota_Promedio += +d.Nota_Promedio;
+			promedio_data[d.Region_Colegio].Suma_Nota_Mujeres += +d.Nota_Mujeres;
+			promedio_data[d.Region_Colegio].Suma_Nota_Hombres += +d.Nota_Hombres;
 
-					promedio_data[d.Region_Colegio][d.Comuna_Colegio][d.Nombre_Colegio].Suma_Nota_Promedio += +d.Nota_Promedio;
-					promedio_data[d.Region_Colegio][d.Comuna_Colegio][d.Nombre_Colegio].Suma_Nota_Mujeres += +d.Nota_Mujeres;
-					promedio_data[d.Region_Colegio][d.Comuna_Colegio][d.Nombre_Colegio].Suma_Nota_Hombres += +d.Nota_Hombres;
+			if (d.Comuna_Colegio in promedio_data[d.Region_Colegio]["comunas"]) { //si existía la comuna
+				//se suma la nota del colegio actual a la ponderacion de la comuna
+				promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio].Suma_Nota_Promedio += +d.Nota_Promedio;
+				promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio].Suma_Nota_Mujeres += +d.Nota_Mujeres;
+				promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio].Suma_Nota_Hombres += +d.Nota_Hombres;
 
-					promedio_data[d.Region_Colegio].Suma_Nota_Promedio += +d.Nota_Promedio;
-					promedio_data[d.Region_Colegio].Suma_Nota_Mujeres += +d.Nota_Mujeres;
-					promedio_data[d.Region_Colegio].Suma_Nota_Hombres += +d.Nota_Hombres;
+				if (d.Nombre_Colegio in promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio]["colegios"]){ //si existía el colegio
+					//se añade el curso al colegio
+					// if (d.Curso in ){
 
-					promedio_data[d.Region_Colegio][d.Comuna_Colegio].Suma_Nota_Promedio += +d.Nota_Promedio;
-					promedio_data[d.Region_Colegio][d.Comuna_Colegio].Suma_Nota_Mujeres += +d.Nota_Mujeres;
-					promedio_data[d.Region_Colegio][d.Comuna_Colegio].Suma_Nota_Hombres += +d.Nota_Hombres;
+					// }
+					// else{
+					// 	promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio]["colegios"][d.Nombre_Colegio]["cursos"][d.Curso] = {
+					// 	}
+					// }
+					
+					//se suma la nota del colegio actual a la ponderacion
+					promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio]["colegios"][d.Nombre_Colegio].Suma_Nota_Promedio += +d.Nota_Promedio;
+					promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio]["colegios"][d.Nombre_Colegio].Suma_Nota_Mujeres += +d.Nota_Mujeres;
+					promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio]["colegios"][d.Nombre_Colegio].Suma_Nota_Hombres += +d.Nota_Hombres;
+					// promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio]["colegios"][d.Nombre_Colegio].Suma_Asistencia += +d.Asistencia_Promedio;
 				}
 				else{
-					promedio_data[d.Region_Colegio][d.Comuna_Colegio][d.Nombre_Colegio] = {
+					promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio]["colegios"][d.Nombre_Colegio] = {
 						"N_Cursos": 0,
 						"N_Cursos_Mujeres": 0, 
 						"N_Cursos_Hombres": 0, 
@@ -404,19 +416,14 @@ filtros = {
 						"Suma_Nota_Mujeres": +d.Nota_Mujeres,
 						"Suma_Nota_Hombres": +d.Nota_Hombres
 					}
-					promedio_data[d.Region_Colegio].N_Colegios += 1;
-					promedio_data[d.Region_Colegio].Suma_Nota_Promedio += +d.Nota_Promedio;
-					promedio_data[d.Region_Colegio].Suma_Nota_Mujeres += +d.Nota_Mujeres;
-					promedio_data[d.Region_Colegio].Suma_Nota_Hombres += +d.Nota_Hombres;
 
-					promedio_data[d.Region_Colegio][d.Comuna_Colegio].N_Colegios += 1;
-					promedio_data[d.Region_Colegio][d.Comuna_Colegio].Suma_Nota_Promedio += +d.Nota_Promedio;
-					promedio_data[d.Region_Colegio][d.Comuna_Colegio].Suma_Nota_Mujeres += +d.Nota_Mujeres;
-					promedio_data[d.Region_Colegio][d.Comuna_Colegio].Suma_Nota_Hombres += +d.Nota_Hombres;
+					//se agrega un colegio a la region y a la comuna
+					promedio_data[d.Region_Colegio].N_Colegios += 1;
+					promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio].N_Colegios += 1;
 				}
 			}
 			else{
-				promedio_data[d.Region_Colegio][d.Comuna_Colegio] = {
+				promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio] = {
 					"N_Colegios": 1,
 					"N_Cursos": 0,
 					"N_Cursos_Mujeres": 0, 
@@ -425,9 +432,10 @@ filtros = {
 					"Suma_Nota_Mujeres": +d.Nota_Mujeres,
 					"Suma_Nota_Hombres": +d.Nota_Hombres,
 					"Latitude": d.Lat_comuna,
-					"Longitude": d.Lng_comuna
+					"Longitude": d.Lng_comuna,
+					"colegios": {}
 				}
-				promedio_data[d.Region_Colegio][d.Comuna_Colegio][d.Nombre_Colegio] = {
+				promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio]["colegios"][d.Nombre_Colegio] = {
 					"N_Cursos": 0,
 					"N_Cursos_Mujeres": 0, 
 					"N_Cursos_Hombres": 0, 
@@ -435,11 +443,7 @@ filtros = {
 					"Suma_Nota_Mujeres": +d.Nota_Mujeres,
 					"Suma_Nota_Hombres": +d.Nota_Hombres
 				}
-
 				promedio_data[d.Region_Colegio].N_Colegios += 1;
-				promedio_data[d.Region_Colegio].Suma_Nota_Promedio += +d.Nota_Promedio;
-				promedio_data[d.Region_Colegio].Suma_Nota_Mujeres += +d.Nota_Mujeres;
-				promedio_data[d.Region_Colegio].Suma_Nota_Hombres += +d.Nota_Hombres;
 			}
 		}
 		else{
@@ -452,9 +456,11 @@ filtros = {
 				"Suma_Nota_Mujeres": +d.Nota_Mujeres,
 				"Suma_Nota_Hombres": +d.Nota_Hombres,
 				"Latitude": d.Lat_region,
-				"Longitude": d.Lng_region
+				"Longitude": d.Lng_region,
+				"comunas": {}
 			}
-			promedio_data[d.Region_Colegio][d.Comuna_Colegio] = {
+
+			promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio] = {
 				"N_Colegios": 1,
 				"N_Cursos": 0,
 				"N_Cursos_Mujeres": 0, 
@@ -463,9 +469,10 @@ filtros = {
 				"Suma_Nota_Mujeres": +d.Nota_Mujeres,
 				"Suma_Nota_Hombres": +d.Nota_Hombres,
 				"Latitude": d.Lat_comuna,
-				"Longitude": d.Lng_comuna
+				"Longitude": d.Lng_comuna,
+				"colegios": {}
 			}
-			promedio_data[d.Region_Colegio][d.Comuna_Colegio][d.Nombre_Colegio] = {
+			promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio]["colegios"][d.Nombre_Colegio] = {
 				"N_Cursos": 0,
 				"N_Cursos_Mujeres": 0, 
 				"N_Cursos_Hombres": 0, 
@@ -477,18 +484,18 @@ filtros = {
 
 		if (d.Nota_Mujeres != 0) {
 			promedio_data[d.Region_Colegio].N_Cursos_Mujeres += 1;
-			promedio_data[d.Region_Colegio][d.Comuna_Colegio].N_Cursos_Mujeres += 1;
-			promedio_data[d.Region_Colegio][d.Comuna_Colegio][d.Nombre_Colegio].N_Cursos_Mujeres += 1;
+			promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio].N_Cursos_Mujeres += 1;
+			promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio]["colegios"][d.Nombre_Colegio].N_Cursos_Mujeres += 1;
 		}
 		if (d.Nota_Hombres != 0) {
 			promedio_data[d.Region_Colegio].N_Cursos_Hombres += 1;
-			promedio_data[d.Region_Colegio][d.Comuna_Colegio].N_Cursos_Hombres += 1;
-			promedio_data[d.Region_Colegio][d.Comuna_Colegio][d.Nombre_Colegio].N_Cursos_Hombres += 1;
+			promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio].N_Cursos_Hombres += 1;
+			promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio]["colegios"][d.Nombre_Colegio].N_Cursos_Hombres += 1;
 		}
 
 		promedio_data[d.Region_Colegio].N_Cursos += 1;
-		promedio_data[d.Region_Colegio][d.Comuna_Colegio].N_Cursos += 1;
-		promedio_data[d.Region_Colegio][d.Comuna_Colegio][d.Nombre_Colegio].N_Cursos += 1;
+		promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio].N_Cursos += 1;
+		promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio]["colegios"][d.Nombre_Colegio].N_Cursos += 1;
 	}
 
 
@@ -564,7 +571,6 @@ filtros = {
 
 		// 	init = 1;
 		// }
-
 		d3.select("#points").selectAll("circle").data(dataset) //plotted 	locations on map
 		.enter()
 		.append("circle")
@@ -611,6 +617,23 @@ filtros = {
 				}
 			}
 		}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 		var circles = d3.selectAll("circle")
 				.attr("cx", function(d) {return projection([d.Longitude,d.Latitude])[0]})
@@ -748,7 +771,7 @@ filtros = {
 
 	function createCoordParalelas(dataset){
 		x.domain(dimensions = d3.keys(dataset[0]).filter(function(d) {
-			return d != "Nombre" && (y[d] = d3.scale.linear()
+			return (d != "Nombre" && d != "Longitude") && (y[d] = d3.scale.linear()
 				.domain(d3.extent(dataset, function(p) { 
 					return +p[d]; 
 				}))
