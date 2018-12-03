@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
+
 <style>
 
 	body {
@@ -7,170 +8,169 @@
 		overflow-y: hidden;
 	}
 	/*mapa*/
-	#container {
-		position: relative;
-		overflow: hidden;
-		background: #ddd;
-	}
+		#container {
+			position: relative;
+			overflow: hidden;
+			background: #ddd;
+		}
 
-	#map{
-		width:100%;
-		height:100%;
-	}
+		#map{
+			width:100%;
+			height:100%;
+		}
 
-	#points{
-		width:100%;
-		height:100%;
-		position:relative;
-		z-index:100;
-	}
+		#points{
+			width:100%;
+			height:100%;
+			position:relative;
+			z-index:100;
+		}
 
-	.layer {
-		position: absolute;
-	}
+		.layer {
+			position: absolute;
+		}
 
-	.tile {
-		pointer-events: none;
-		position: absolute;
-		width: 256px;
-		height: 256px;
-	}
+		.tile {
+			pointer-events: none;
+			position: absolute;
+			width: 256px;
+			height: 256px;
+		}
 
-	.zona{
-		opacity: 0.85;
-		/*fill: #ff2200;*/
-	}
+		.zona{
+			opacity: 0.85;
+			/*fill: #ff2200;*/
+		}
 
-	.zona:hover{
-		opacity: 1.0;
-		/*fill: #ff8a00;*/
-	}
+		.zona:hover{
+			opacity: 1.0;
+			/*fill: #ff8a00;*/
+		}
 
-	.d3-tip {
-		line-height: 1.5;
-		font-weight: normal;
-		font-family: Helvetica, Arial, sans-serif;
-		font-size:13px;
-		padding: 10px;
-		background: rgba(0, 0, 0, 0.8);
-		color: #fff;
-		border-radius: 3px;
-		position:relative;
-		z-index:101;
-	}
+		.d3-tip {
+			line-height: 1.5;
+			font-weight: normal;
+			font-family: Helvetica, Arial, sans-serif;
+			font-size:13px;
+			padding: 10px;
+			background: rgba(0, 0, 0, 0.8);
+			color: #fff;
+			border-radius: 3px;
+			position:relative;
+			z-index:101;
+		}
 
-	.d3-tip:after {
-		box-sizing: border-box;
-		display: inline;
-		font-size: 20px;
-		width: 100%;
-		line-height: .5;
-		color: rgba(0, 0, 0, 0.8);
-		content: "\25BC";
-		position: absolute;
-		text-align: center;
-	}
+		.d3-tip:after {
+			box-sizing: border-box;
+			display: inline;
+			font-size: 20px;
+			width: 100%;
+			line-height: .5;
+			color: rgba(0, 0, 0, 0.8);
+			content: "\25BC";
+			position: absolute;
+			text-align: center;
+		}
 
-	.d3-tip.n:after {
-		margin: -1px 0 0 0;
-		top: 100%;
-		left: 0;
-	}
+		.d3-tip.n:after {
+			margin: -1px 0 0 0;
+			top: 100%;
+			left: 0;
+		}
 
-	#my-legend {
-		position: absolute;
-		top: 0;
-		z-index: 100;
-		padding: 10px;
-		background-color: rgba(175, 175, 175, 0.7);
-		border-radius: 15px;
-		margin: 3px;
-	}
-	#my-legend #legend-title {
-		text-align: left;
-		margin-bottom: 8px;
-		font-weight: bold;
-		font-size: 90%;
-	}
-	#my-legend #legend-scale ul {
-		margin: 0;
-		padding: 0;
-		float: left;
-		list-style: none;
-	}
-	#my-legend #legend-scale ul li {
-		display: block;
-		float: left;
-		width: 50px;
-		margin-bottom: 6px;
-		text-align: right;
-		font-size: 80%;
-		list-style: none;
-	}
-	#my-legend ul#legend-labels li span {
-		display: block;
-		float: left;
-		height: 15px;
-		width: 50px;
-	}
-	#my-legend #legend-source {
-		font-size: 70%;
-		color: #999;
-		clear: both;
-	}
-	#my-legend a {
-		color: #777;
-	}
+		#my-legend {
+			position: absolute;
+			top: 0;
+			z-index: 100;
+			padding: 10px;
+			background-color: rgba(175, 175, 175, 0.7);
+			border-radius: 15px;
+			margin: 3px;
+		}
+		#my-legend #legend-title {
+			text-align: left;
+			margin-bottom: 8px;
+			font-weight: bold;
+			font-size: 90%;
+		}
+		#my-legend #legend-scale ul {
+			margin: 0;
+			padding: 0;
+			float: left;
+			list-style: none;
+		}
+		#my-legend #legend-scale ul li {
+			display: block;
+			float: left;
+			width: 50px;
+			margin-bottom: 6px;
+			text-align: right;
+			font-size: 80%;
+			list-style: none;
+		}
+		#my-legend ul#legend-labels li span {
+			display: block;
+			float: left;
+			height: 15px;
+			width: 50px;
+		}
+		#my-legend #legend-source {
+			font-size: 70%;
+			color: #999;
+			clear: both;
+		}
+		#my-legend a {
+			color: #777;
+		}
 
 	/*coordenadas paralelas*/
-	svg {
-		font: 10px sans-serif;
-	}
+		svg {
+			font: 10px sans-serif;
+		}
 
-	.background path {
-		fill: none;
-		stroke: #ddd;
-		shape-rendering: crispEdges;
-	}
+		.background path {
+			fill: none;
+			stroke: #ddd;
+			shape-rendering: crispEdges;
+		}
 
-	.foreground path {
-		fill: none;
-		stroke: steelblue;
-	}
+		.foreground path {
+			fill: none;
+			stroke: steelblue;
+			stroke-width: 2;
+		}
 
-	.brush .extent {
-		fill-opacity: .3;
-		stroke: #fff;
-		shape-rendering: crispEdges;
-	}
+		.brush .extent {
+			fill-opacity: .3;
+			stroke: #fff;
+			shape-rendering: crispEdges;
+		}
 
-	.axis line,
-	.axis path {
-		fill: none;
-		stroke: #000;
-		shape-rendering: crispEdges;
-	}
+		.axis line,
+		.axis path {
+			fill: none;
+			stroke: #000;
+			shape-rendering: crispEdges;
+		}
 
-	.axis text {
-		text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
-		cursor: move;
-	}
+		.axis text {
+			text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
+			cursor: move;
+		}
 
-	.tooltip {
-		background-color: rgba(220,220,220,0.5);
-		color: #333;
-		margin: 10px;
-		height: 25px;
-		padding-right: 10px;
-		padding-left: 10px; 
-		padding-top: 10px;
-		-webkit-border-radius:10px;
-		-moz-border-radius:10px;
-		border-radius:10px;
-	}
+		.tooltip {
+			background-color: rgba(220,220,220,0.8);
+			color: #333;
+			margin: 10px;
+			height: 25px;
+			padding-right: 10px;
+			padding-left: 10px; 
+			padding-top: 10px;
+			-webkit-border-radius:10px;
+			-moz-border-radius:10px;
+			border-radius:10px;
+		}
 </style>
-
-
 
 <body>
 <script src="d3.v3.min.js"></script>
@@ -271,6 +271,8 @@ filtros = {
 	var min_nota_region = 7;
 	var max_promedio_nota = 0;
 	var min_promedio_nota = 0;
+	var max_nota = {"promedio_region": 0, "mujer_region": 0, "hombre_region": 0, "total_region": 0, "promedio_comuna": 0, "mujer_comuna": 0, "hombre_comuna": 0, "total_comuna": 0} //total es para mujeres, hombres y promedios (usado en coord paralalelas)
+	var min_nota = {"promedio_region": 7, "mujer_region": 7, "hombre_region": 7, "total_region": 7, "promedio_comuna": 7, "mujer_comuna": 7, "hombre_comuna": 7, "total_comuna": 7}
 	var max_cant_colegios_comuna = 0;
 	var min_cant_colegios_comuna = 3000;
 	var max_cant_colegios_region = 0;
@@ -286,8 +288,6 @@ filtros = {
 
 	d3.csv("Rendimiento_por_cursos_georeferenciados3.csv", type, function(error, dataset) { 
 		if (error) throw error;
-
-		// console.log(promedio_data);
 
 		let nombre_region;
 		let region;
@@ -309,8 +309,21 @@ filtros = {
 			// edad_promedio = (region.Suma_Edad_Promedio/region.N_Cursos);
 
 			cant_colegios = region.N_Colegios;
-			if (promedio_nota > max_nota_region) {max_nota_region = promedio_nota};
-			if (promedio_nota < min_nota_region) {min_nota_region = promedio_nota};
+			// if (promedio_nota > max_nota_region) {max_nota_region = promedio_nota};
+			// if (promedio_nota < min_nota_region) {min_nota_region = promedio_nota};
+			if (promedio_nota > max_nota["promedio_region"]) {max_nota["promedio_region"] = promedio_nota};
+			if (promedio_nota < min_nota["promedio_region"]) {min_nota["promedio_region"] = promedio_nota};
+			if (promedio_mujeres > max_nota["mujer_region"]) {max_nota["mujer_region"] = promedio_mujeres};
+			if (promedio_mujeres < min_nota["mujer_region"]) {min_nota["mujer_region"] = promedio_mujeres};
+			if (promedio_hombres > max_nota["hombre_region"]) {max_nota["hombre_region"] = promedio_hombres};
+			if (promedio_hombres < min_nota["hombre_region"]) {min_nota["hombre_region"] = promedio_hombres};
+			if (Math.max(promedio_nota, promedio_mujeres, promedio_hombres) > max_nota["total_region"]){
+				max_nota["total_region"] = Math.max(promedio_nota, promedio_mujeres, promedio_hombres)
+			};
+			if (Math.min(promedio_nota, promedio_mujeres, promedio_hombres) < min_nota["total_region"]){
+				min_nota["total_region"] = Math.min(promedio_nota, promedio_mujeres, promedio_hombres)
+			};
+			if (promedio_nota < min_nota["total_region"]) {min_nota["total_region"] = promedio_nota};
 			if (cant_colegios > max_cant_colegios_region) {max_cant_colegios_region = cant_colegios};
 			if (cant_colegios < min_cant_colegios_region) {min_cant_colegios_region = cant_colegios};
 			data_regiones.push({
@@ -335,8 +348,20 @@ filtros = {
 				edad_promedio = (comuna.Suma_Edad_Promedio/comuna.N_Cursos);
 
 				cant_colegios = comuna.N_Colegios;
-				if (promedio_nota > max_nota_comuna) {max_nota_comuna = promedio_nota};
-				if (promedio_nota < min_nota_comuna) {min_nota_comuna = promedio_nota};
+				// if (promedio_nota > max_nota_comuna) {max_nota_comuna = promedio_nota};
+				// if (promedio_nota < min_nota_comuna) {min_nota_comuna = promedio_nota};
+				if (promedio_nota > max_nota["promedio_comuna"]) {max_nota["promedio_comuna"] = promedio_nota};
+				if (promedio_nota < min_nota["promedio_comuna"]) {min_nota["promedio_comuna"] = promedio_nota};
+				if (promedio_mujeres > max_nota["mujer_comuna"]) {max_nota["mujer_comuna"] = promedio_mujeres};
+				if (promedio_mujeres < min_nota["mujer_comuna"]) {min_nota["mujer_comuna"] = promedio_mujeres};
+				if (promedio_hombres > max_nota["hombre_comuna"]) {max_nota["hombre_comuna"] = promedio_hombres};
+				if (promedio_hombres < min_nota["hombre_comuna"]) {min_nota["hombre_comuna"] = promedio_hombres};
+				if (Math.max(promedio_nota, promedio_mujeres, promedio_hombres) > max_nota["total_comuna"]){
+					max_nota["total_comuna"] = Math.max(promedio_nota, promedio_mujeres, promedio_hombres)
+				};
+				if (Math.min(promedio_nota, promedio_mujeres, promedio_hombres) < min_nota["total_comuna"]){
+					min_nota["total_comuna"] = Math.min(promedio_nota, promedio_mujeres, promedio_hombres)
+				};
 				if (cant_colegios > max_cant_colegios_comuna) {max_cant_colegios_comuna = cant_colegios};
 				if (cant_colegios < min_cant_colegios_comuna) {min_cant_colegios_comuna = cant_colegios};
 				data_comunas.push({
@@ -346,6 +371,7 @@ filtros = {
 					Promedio_Notas: promedio_nota, 
 					Promedio_Mujeres: promedio_mujeres, 
 					Promedio_Hombres: promedio_hombres, 
+					Edad_Promedio: edad_promedio,
 					Longitude: +comuna.Longitude, 
 					Latitude: +comuna.Latitude
 				})
@@ -355,8 +381,10 @@ filtros = {
 
 		//creacion del mapa inicial
 		// if (filtros.zoom == "Region"){
-			max_promedio_nota = max_nota_region;
-			min_promedio_nota = min_nota_region;
+			// max_promedio_nota = max_nota_region;
+			// min_promedio_nota = min_nota_region;
+			max_promedio_nota = max_nota["promedio_region"];
+			min_promedio_nota = min_nota["promedio_region"];
 			createMap(data_regiones)
 		// }
 		// else if (filtros.zoom == "Comuna"){
@@ -383,7 +411,7 @@ filtros = {
 			return null;
 		}
 
-
+		d.Nivel_Educacion = d.Nivel_Educacion.replace(/a$/,"o") // para decir en vez de 1_Basica -> 1_Basico
 
 		if (d.Region_Colegio in promedio_data){ //si existía la reguion
 			//se suma la nota del colegio actual a la ponderacion de la region
@@ -678,39 +706,26 @@ filtros = {
 			if (zoom.scale() >= 49667){
 				if (filtros.zoom == "Region") { //modificar a vista de comunas
 					filtros.zoom = "Comuna"
-					max_promedio_nota = max_nota_comuna;
-					min_promedio_nota = min_nota_comuna;
+					max_promedio_nota = max_nota["promedio_comuna"];
+					min_promedio_nota = min_nota["promedio_comuna"];
 					clearMap();
-					createMap(data_comunas)
+					createMap(data_comunas);
+					clearCoordParalelas();
+					createCoordParalelas(data_comunas);
 				}
 			}
 			else {
 				if (filtros.zoom == "Comuna") { //modificar a vista de regiones
 					filtros.zoom = "Region"
-					max_promedio_nota = max_nota_region;
-					min_promedio_nota = min_nota_region;
+					max_promedio_nota = max_nota["promedio_region"];
+					min_promedio_nota = min_nota["promedio_region"];
 					clearMap();
-					createMap(data_regiones)
+					createMap(data_regiones);
+					clearCoordParalelas();
+					createCoordParalelas(data_regiones);
 				}
 			}
 		}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 		var circles = d3.selectAll("circle")
 				.attr("cx", function(d) {return projection([d.Longitude,d.Latitude])[0]})
@@ -825,42 +840,38 @@ filtros = {
 	c_width = coord_width - margin.left - margin.right,
 	c_height = coord_height - margin.top - margin.bottom;
 
-	var x = d3.scale.ordinal().rangePoints([0, c_width], 1),
-			y = {},
-			dragging = {};
-
-	var line = d3.svg.line(),
-			axis = d3.svg.axis().orient("left"),
-			background,
-			foreground;
-
-	var svg = d3.select("body").append("svg")
-		.attr("width", c_width + margin.left + margin.right)
-		.attr("height", c_height + margin.top + margin.bottom)
-		.attr("style", "float: right;")
-		.append("g")
-		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
 	// d3.csv("data5.csv", function(error, region) {
 		// Extract the list of dimensions and create a scale for each.
 		// createCoordParalelas(region)
 	// });
+		var x = d3.scale.ordinal().rangePoints([0, c_width], 1),
+				y = {},
+				dragging = {};
+
+		var line = d3.svg.line(),
+				axis = d3.svg.axis().orient("left"),
+				background,
+				foreground,
+				svg;
+
 
 	function createCoordParalelas(dataset){
+
+		svg = d3.select("body").append("svg")
+			.attr("id", "coordenadas_paralelas")
+			.attr("width", c_width + margin.left + margin.right)
+			.attr("height", c_height + margin.top + margin.bottom)
+			.attr("style", "float: right;")
+			.append("g")
+			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
 		x.domain(dimensions = d3.keys(dataset[0]).filter(function(d) {
-			return (d != "Nombre" && d != "Longitude") && (y[d] = d3.scale.linear()
+			return (d != "Nombre" && d != "Longitude" && d != "Latitude") && (y[d] = d3.scale.linear()
 				.domain(d3.extent(dataset, function(p) { 
 					return +p[d]; 
 				}))
 				.range([c_height, 0]));
 		}));
-
-		// x.domain(dimensions = d3.keys(piers[0]).filter(function(d) {
-	 //  return d != "name" && (y[d] = d3.scale.linear()
-	 //      .domain(d3.extent(piers, function(p) { return +p[d]; }))
-	 //      .range([h, 0]));
-		// }));
-
 
 		// Add grey background lines for context.
 		background = svg.append("g")
@@ -887,7 +898,7 @@ filtros = {
 			.on("mouseout", function(d){
 				d3.select(this).transition().duration(100)
 				.style({'stroke': 'steelblue' })
-				.style({'stroke-width' : '2'});
+				// .style({'stroke-width' : '2'});
 				return tooltip.style("visibility", "hidden");
 			});
 
@@ -955,6 +966,11 @@ filtros = {
 			.selectAll("rect")
 			.attr("x", -8)
 			.attr("width", 16);
+	}
+
+	function clearCoordParalelas(){
+		// svg.remove();
+		document.getElementById("coordenadas_paralelas").remove();
 	}
 
 	function position(d) {
