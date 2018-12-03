@@ -379,42 +379,78 @@ filtros = {
 		}
 
 
+
 		if (d.Region_Colegio in promedio_data){ //si existía la reguion
 			//se suma la nota del colegio actual a la ponderacion de la region
 			promedio_data[d.Region_Colegio].Suma_Nota_Promedio += +d.Nota_Promedio;
 			promedio_data[d.Region_Colegio].Suma_Nota_Mujeres += +d.Nota_Mujeres;
 			promedio_data[d.Region_Colegio].Suma_Nota_Hombres += +d.Nota_Hombres;
+			promedio_data[d.Region_Colegio].Suma_Asistencia_Promedio += +d.Asistencia_Promedio;
+			promedio_data[d.Region_Colegio].Suma_Edad_Promedio += +d.Edad_Promedio;
 
 			if (d.Comuna_Colegio in promedio_data[d.Region_Colegio]["comunas"]) { //si existía la comuna
 				//se suma la nota del colegio actual a la ponderacion de la comuna
 				promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio].Suma_Nota_Promedio += +d.Nota_Promedio;
 				promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio].Suma_Nota_Mujeres += +d.Nota_Mujeres;
 				promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio].Suma_Nota_Hombres += +d.Nota_Hombres;
+				promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio].Suma_Asistencia_Promedio += +d.Asistencia_Promedio;
+				promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio].Suma_Edad_Promedio += +d.Edad_Promedio;
 
 				if (d.Nombre_Colegio in promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio]["colegios"]){ //si existía el colegio
-					//se añade el curso al colegio
-					// if (d.Curso in ){
-
-					// }
-					// else{
-					// 	promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio]["colegios"][d.Nombre_Colegio]["cursos"][d.Curso] = {
-					// 	}
-					// }
-					
 					//se suma la nota del colegio actual a la ponderacion
 					promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio]["colegios"][d.Nombre_Colegio].Suma_Nota_Promedio += +d.Nota_Promedio;
 					promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio]["colegios"][d.Nombre_Colegio].Suma_Nota_Mujeres += +d.Nota_Mujeres;
 					promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio]["colegios"][d.Nombre_Colegio].Suma_Nota_Hombres += +d.Nota_Hombres;
-					// promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio]["colegios"][d.Nombre_Colegio].Suma_Asistencia += +d.Asistencia_Promedio;
+					promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio]["colegios"][d.Nombre_Colegio].Suma_Asistencia_Promedio += +d.Asistencia_Promedio;
+					promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio]["colegios"][d.Nombre_Colegio].Suma_Edad_Promedio += +d.Edad_Promedio;
+					
+					if ((d.Curso +'_'+ d.Nivel_Educacion) in promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio]["colegios"][d.Nombre_Colegio]["cursos"]){ //si existía el curso
+						promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio]["colegios"][d.Nombre_Colegio]["cursos"][d.Curso +'_'+ d.Nivel_Educacion].N_Letras += 1
+						promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio]["colegios"][d.Nombre_Colegio]["cursos"][d.Curso +'_'+ d.Nivel_Educacion].N_Mujeres += +d.Num_Mujeres
+						promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio]["colegios"][d.Nombre_Colegio]["cursos"][d.Curso +'_'+ d.Nivel_Educacion].N_Hombres += +d.Num_Hombres
+						promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio]["colegios"][d.Nombre_Colegio]["cursos"][d.Curso +'_'+ d.Nivel_Educacion].Suma_Nota_Promedio += +d.Nota_Promedio
+						promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio]["colegios"][d.Nombre_Colegio]["cursos"][d.Curso +'_'+ d.Nivel_Educacion].Suma_Nota_Mujeres += (+d.Nota_Mujeres*d.Num_Mujeres)
+						promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio]["colegios"][d.Nombre_Colegio]["cursos"][d.Curso +'_'+ d.Nivel_Educacion].Suma_Nota_Hombres += (+d.Nota_Hombres*d.Num_Hombres)
+						promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio]["colegios"][d.Nombre_Colegio]["cursos"][d.Curso +'_'+ d.Nivel_Educacion].Suma_Asistencia_Promedio += +d.Asistencia_Promedio
+						promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio]["colegios"][d.Nombre_Colegio]["cursos"][d.Curso +'_'+ d.Nivel_Educacion].Suma_Edad_Promedio += +d.Edad_Promedio
+					}
+					else{
+						promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio]["colegios"][d.Nombre_Colegio]["cursos"][d.Curso +'_'+ d.Nivel_Educacion] = {
+							// "Letra": d.Letra_Curso, //para esto seria necesaria 1 profundidad extra q probablemente no se use
+							"N_Letras": 1,
+							"N_Mujeres": +d.Num_Mujeres,
+							"N_Hombres": +d.Num_Hombres,
+							"Suma_Nota_Promedio": +d.Nota_Promedio,
+							"Suma_Nota_Mujeres": (+d.Nota_Mujeres*d.Num_Mujeres),
+							"Suma_Nota_Hombres": (+d.Nota_Hombres*d.Num_Hombres),
+							"Suma_Asistencia_Promedio": +d.Asistencia_Promedio,
+							"Suma_Edad_Promedio": +d.Edad_Promedio
+						}
+					}
 				}
 				else{
-					promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio]["colegios"][d.Nombre_Colegio] = {
+					promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio]["colegios"][d.Nombre_Colegio] = { //se crea el colegio
 						"N_Cursos": 0,
 						"N_Cursos_Mujeres": 0, 
 						"N_Cursos_Hombres": 0, 
 						"Suma_Nota_Promedio": +d.Nota_Promedio,
 						"Suma_Nota_Mujeres": +d.Nota_Mujeres,
-						"Suma_Nota_Hombres": +d.Nota_Hombres
+						"Suma_Nota_Hombres": +d.Nota_Hombres,
+						"Suma_Asistencia_Promedio": +d.Asistencia_Promedio,
+						"Suma_Edad_Promedio": +d.Edad_Promedio,
+						"Dependencia_Colegio": d.Dependencia_Colegio,
+						"Ruralidad": d.Ruralidad,
+						"cursos": {}
+					}
+					promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio]["colegios"][d.Nombre_Colegio]["cursos"][d.Curso +'_'+ d.Nivel_Educacion] = {
+						"N_Letras": 1,
+						"N_Mujeres": +d.Num_Mujeres,
+						"N_Hombres": +d.Num_Hombres,
+						"Suma_Nota_Promedio": +d.Nota_Promedio,
+						"Suma_Nota_Mujeres": (+d.Nota_Mujeres*d.Num_Mujeres),
+						"Suma_Nota_Hombres": (+d.Nota_Hombres*d.Num_Hombres),
+						"Suma_Asistencia_Promedio": +d.Asistencia_Promedio,
+						"Suma_Edad_Promedio": +d.Edad_Promedio
 					}
 
 					//se agrega un colegio a la region y a la comuna
@@ -423,7 +459,7 @@ filtros = {
 				}
 			}
 			else{
-				promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio] = {
+				promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio] = { //se crea la comuna
 					"N_Colegios": 1,
 					"N_Cursos": 0,
 					"N_Cursos_Mujeres": 0, 
@@ -431,6 +467,8 @@ filtros = {
 					"Suma_Nota_Promedio": +d.Nota_Promedio,
 					"Suma_Nota_Mujeres": +d.Nota_Mujeres,
 					"Suma_Nota_Hombres": +d.Nota_Hombres,
+					"Suma_Asistencia_Promedio": +d.Asistencia_Promedio,
+					"Suma_Edad_Promedio": +d.Edad_Promedio,
 					"Latitude": d.Lat_comuna,
 					"Longitude": d.Lng_comuna,
 					"colegios": {}
@@ -441,8 +479,24 @@ filtros = {
 					"N_Cursos_Hombres": 0, 
 					"Suma_Nota_Promedio": +d.Nota_Promedio,
 					"Suma_Nota_Mujeres": +d.Nota_Mujeres,
-					"Suma_Nota_Hombres": +d.Nota_Hombres
+					"Suma_Nota_Hombres": +d.Nota_Hombres,
+					"Suma_Asistencia_Promedio": +d.Asistencia_Promedio,
+					"Suma_Edad_Promedio": +d.Edad_Promedio,
+					"Dependencia_Colegio": d.Dependencia_Colegio,
+					"Ruralidad": d.Ruralidad,
+					"cursos": {}
 				}
+				promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio]["colegios"][d.Nombre_Colegio]["cursos"][d.Curso +'_'+ d.Nivel_Educacion] = {
+					"N_Letras": 1,
+					"N_Mujeres": +d.Num_Mujeres,
+					"N_Hombres": +d.Num_Hombres,
+					"Suma_Nota_Promedio": +d.Nota_Promedio,
+					"Suma_Nota_Mujeres": (+d.Nota_Mujeres*d.Num_Mujeres),
+					"Suma_Nota_Hombres": (+d.Nota_Hombres*d.Num_Hombres),
+					"Suma_Asistencia_Promedio": +d.Asistencia_Promedio,
+					"Suma_Edad_Promedio": +d.Edad_Promedio
+				}
+
 				promedio_data[d.Region_Colegio].N_Colegios += 1;
 			}
 		}
@@ -455,11 +509,12 @@ filtros = {
 				"Suma_Nota_Promedio": +d.Nota_Promedio,
 				"Suma_Nota_Mujeres": +d.Nota_Mujeres,
 				"Suma_Nota_Hombres": +d.Nota_Hombres,
+				"Suma_Asistencia_Promedio": +d.Asistencia_Promedio,
+				"Suma_Edad_Promedio": +d.Edad_Promedio,
 				"Latitude": d.Lat_region,
 				"Longitude": d.Lng_region,
 				"comunas": {}
 			}
-
 			promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio] = {
 				"N_Colegios": 1,
 				"N_Cursos": 0,
@@ -468,6 +523,8 @@ filtros = {
 				"Suma_Nota_Promedio": +d.Nota_Promedio,
 				"Suma_Nota_Mujeres": +d.Nota_Mujeres,
 				"Suma_Nota_Hombres": +d.Nota_Hombres,
+				"Suma_Asistencia_Promedio": +d.Asistencia_Promedio,
+				"Suma_Edad_Promedio": +d.Edad_Promedio,
 				"Latitude": d.Lat_comuna,
 				"Longitude": d.Lng_comuna,
 				"colegios": {}
@@ -478,7 +535,22 @@ filtros = {
 				"N_Cursos_Hombres": 0, 
 				"Suma_Nota_Promedio": +d.Nota_Promedio,
 				"Suma_Nota_Mujeres": +d.Nota_Mujeres,
-				"Suma_Nota_Hombres": +d.Nota_Hombres
+				"Suma_Nota_Hombres": +d.Nota_Hombres,
+				"Suma_Asistencia_Promedio": +d.Asistencia_Promedio,
+				"Suma_Edad_Promedio": +d.Edad_Promedio,
+				"Dependencia_Colegio": d.Dependencia_Colegio,
+				"Ruralidad": d.Ruralidad,
+				"cursos": {}
+			}
+			promedio_data[d.Region_Colegio]["comunas"][d.Comuna_Colegio]["colegios"][d.Nombre_Colegio]["cursos"][d.Curso +'_'+ d.Nivel_Educacion] = {
+				"N_Letras": 1,
+				"N_Mujeres": +d.Num_Mujeres,
+				"N_Hombres": +d.Num_Hombres,
+				"Suma_Nota_Promedio": +d.Nota_Promedio,
+				"Suma_Nota_Mujeres": (+d.Nota_Mujeres*d.Num_Mujeres),
+				"Suma_Nota_Hombres": (+d.Nota_Hombres*d.Num_Hombres),
+				"Suma_Asistencia_Promedio": +d.Asistencia_Promedio,
+				"Suma_Edad_Promedio": +d.Edad_Promedio
 			}
 		}
 
