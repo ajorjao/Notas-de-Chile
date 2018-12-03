@@ -301,48 +301,53 @@ filtros = {
 		for (var i = 0; i < Object.keys(promedio_data).length; i++) {
 			nombre_region = Object.keys(promedio_data)[i]
 			region = promedio_data[nombre_region]
-			if (filtros.Genero == "Mujeres"){
-				promedio_nota = (region.Suma_Nota_Mujeres/region.N_Cursos_Mujeres);
-			}
-			else if (filtros.Genero == "Hombres"){
-				promedio_nota = (region.Suma_Nota_Hombres/region.N_Cursos_Hombres);
-			}
-			else {
-				promedio_nota = (region.Suma_Nota_Promedio/region.N_Cursos);
-			}
-			cant_colegios = region.N_Colegios
+
+			promedio_mujeres = (region.Suma_Nota_Mujeres/region.N_Cursos_Mujeres);
+			promedio_hombres = (region.Suma_Nota_Hombres/region.N_Cursos_Hombres);
+			promedio_nota = (region.Suma_Nota_Promedio/region.N_Cursos);
+			asistencia_promedio = (region.Suma_Asistencia_Promedio/region.N_Cursos);
+			// edad_promedio = (region.Suma_Edad_Promedio/region.N_Cursos);
+
+			cant_colegios = region.N_Colegios;
 			if (promedio_nota > max_nota_region) {max_nota_region = promedio_nota};
 			if (promedio_nota < min_nota_region) {min_nota_region = promedio_nota};
 			if (cant_colegios > max_cant_colegios_region) {max_cant_colegios_region = cant_colegios};
 			if (cant_colegios < min_cant_colegios_region) {min_cant_colegios_region = cant_colegios};
 			data_regiones.push({
-				Nombre: nombre_region, N_Colegios: region.N_Colegios, Promedio_Notas: promedio_nota, Longitude: +region.Longitude, Latitude: +region.Latitude, 
+				Nombre: nombre_region, 
+				N_Colegios: region.N_Colegios, 
+				Asistencia_Promedio: asistencia_promedio,
+				Promedio_Notas: promedio_nota, 
+				Promedio_Mujeres: promedio_mujeres, 
+				Promedio_Hombres: promedio_hombres, 
+				// Edad_Promedio: edad_promedio,
+				Longitude: +region.Longitude, 
+				Latitude: +region.Latitude, 
 			})
 			for (var j = 0; j < Object.keys(region.comunas).length; j++) {
 				nombre_comuna = Object.keys(region.comunas)[j];
-				//esto se deberia perfeccionar agregando las comunas en un item "comunas" de cada region... pero no hay tiempo ahora u.u
-				// if (nombre_comuna == "N_Colegios" || nombre_comuna == "N_Cursos" || nombre_comuna == "N_Cursos_Mujeres" || nombre_comuna == "N_Cursos_Hombres" || nombre_comuna == "Suma_Nota_Promedio" || nombre_comuna == "Suma_Nota_Mujeres" || nombre_comuna == "Suma_Nota_Hombres" || nombre_comuna == "Latitude" || nombre_comuna == "Longitude") {
-				// 	continue;
-				// }
 				comuna = region.comunas[nombre_comuna];
 
-				if (filtros.Genero == "Mujeres"){
-					promedio_nota = (comuna.Suma_Nota_Mujeres/comuna.N_Cursos_Mujeres);
-				}
-				else if (filtros.Genero == "Hombres"){
-					promedio_nota = (comuna.Suma_Nota_Hombres/comuna.N_Cursos_Hombres);
-				}
-				else {
-					promedio_nota = (comuna.Suma_Nota_Promedio/comuna.N_Cursos);
-				}
+				promedio_mujeres = (comuna.Suma_Nota_Mujeres/comuna.N_Cursos_Mujeres);
+				promedio_hombres = (comuna.Suma_Nota_Hombres/comuna.N_Cursos_Hombres);
 				promedio_nota = (comuna.Suma_Nota_Promedio/comuna.N_Cursos);
-				cant_colegios = comuna.N_Colegios
+				asistencia_promedio = (comuna.Suma_Asistencia_Promedio/comuna.N_Cursos);
+				edad_promedio = (comuna.Suma_Edad_Promedio/comuna.N_Cursos);
+
+				cant_colegios = comuna.N_Colegios;
 				if (promedio_nota > max_nota_comuna) {max_nota_comuna = promedio_nota};
 				if (promedio_nota < min_nota_comuna) {min_nota_comuna = promedio_nota};
 				if (cant_colegios > max_cant_colegios_comuna) {max_cant_colegios_comuna = cant_colegios};
 				if (cant_colegios < min_cant_colegios_comuna) {min_cant_colegios_comuna = cant_colegios};
 				data_comunas.push({
-					Nombre: nombre_comuna, N_Colegios: comuna.N_Colegios, Promedio_Notas: promedio_nota, Longitude: +comuna.Longitude, Latitude: +comuna.Latitude
+					Nombre: nombre_comuna, 
+					N_Colegios: comuna.N_Colegios, 
+					Asistencia_Promedio: asistencia_promedio,
+					Promedio_Notas: promedio_nota, 
+					Promedio_Mujeres: promedio_mujeres, 
+					Promedio_Hombres: promedio_hombres, 
+					Longitude: +comuna.Longitude, 
+					Latitude: +comuna.Latitude
 				})
 			}
 			// }
