@@ -136,7 +136,7 @@
 
 		.foreground path {
 			fill: none;
-			stroke: steelblue;
+			/*stroke: steelblue;*/
 			stroke-width: 2;
 		}
 
@@ -177,6 +177,7 @@
 <!-- <script src="http://d3js.org/d3.v3.min.js"></script> -->
 <script src="d3.geo.tile.v0.min.js"></script>
 <!-- <script src="http://d3js.org/d3.geo.tile.v0.min.js"></script> -->
+<script src="http://d3js.org/topojson.v1.min.js"></script>
 <script src="d3.tip.js"></script>
 
 <script>
@@ -258,6 +259,23 @@ filtros = {
 	var width = Math.max(960, window.innerWidth),
 			height = Math.max(500, window.innerHeight),
 			prefix = prefixMatch(["webkit", "ms", "Moz", "O"]);
+		
+	color_regiones = {"Arica y Parinacota": "#d98880", //ordenadas de norte a sur
+			"Tarapaca": "#f1948a", 
+			"Antofagasta": "#c39bd3", 
+			"Atacama": "#bb8fce", 
+			"Coquimbo": "#7fb3d5", 
+			"Valparaiso": "#85c1e9",
+			"Metropolitana": "#76d7c4",
+			"Gral Bernardo OHiggins": "#73c6b6",
+			"Maule": "#7dcea0", 
+			"Biobio": "#82e0aa", 
+			"Araucania": "#f7dc6f", 
+			"Los Rios": "#f8c471",  
+			"Los Lagos": "#f0b27a",
+			"Aysen": "#e59866",
+			"Magallanes": "#bfc9ca"}
+
 
 	var map_width = width*0.345; //el mapa usara un 35% del ancho de la pantalla
 	var coord_width = width*0.645; //el grafico de coordenadas paralelas usara un 65% del ancho de la pantalla
@@ -366,6 +384,7 @@ filtros = {
 				if (cant_colegios < min_cant_colegios_comuna) {min_cant_colegios_comuna = cant_colegios};
 				data_comunas.push({
 					Nombre: nombre_comuna, 
+					Region: nombre_region,
 					N_Colegios: comuna.N_Colegios, 
 					Asistencia_Promedio: asistencia_promedio,
 					Promedio_Notas: promedio_nota, 
@@ -621,6 +640,7 @@ filtros = {
 	var tilePath = d3.geo.path()
 			.projection(tileProjection);
 
+	var geoPath = d3.geo.path().projection(projection);
 
 	var zoom = d3.behavior.zoom()
 			.scale(projection.scale() * 2 * Math.PI)
@@ -642,7 +662,7 @@ filtros = {
 
 	var points = container.append("svg")
 			.attr("id", "points")
-					
+
 	var layer = map.append("div")
 			.attr("class", "layer");
 
@@ -654,6 +674,34 @@ filtros = {
 					"<br/>Num Colegios: " + d.N_Colegios + 
 					"<br/>Promedio Notas: " + round(d.Promedio_Notas,2) ;
 			})
+
+
+
+
+
+	d3.json('regiones.topojson', function(error, chile) {
+		// console.log(topojson.feature(chile, chile.objects["chile-regions"]).features)
+
+
+    d3.select("#points").selectAll("vector").data(topojson.feature(chile, chile.objects["chile-regions"]).features)
+	    .enter()
+	    .append("path")
+	    .attr("d", tilePath)
+	    .attr("class", "countries")
+	    // .style("fill", "red")
+	    .style("fill", function(d){
+	    	// console.log(d.properties.Region)
+	    	return color_regiones[d.properties.Region]
+	    })
+	    .style("stroke-width", 1)
+	    .style("stroke", "black")
+	    .style("fill-opacity", .5)
+	});
+
+
+
+
+
 
 	points.call(tip);
 	zoomed();
@@ -674,8 +722,6 @@ filtros = {
 		// console.log(rangos)
 		write_legend(rangos, colors)
 
-		// 	init = 1;
-		// }
 		d3.select("#points").selectAll("circle").data(dataset) //plotted 	locations on map
 		.enter()
 		.append("circle")
@@ -701,6 +747,9 @@ filtros = {
 		projection
 				.scale(zoom.scale() / 2 / Math.PI)
 				.translate(zoom.translate());
+
+    d3.select("#points").selectAll("path")
+    	.attr("d", geoPath);
 
 		if (filtros.zoom_type == "Automatico"){
 			if (zoom.scale() >= 49667){
@@ -865,13 +914,29 @@ filtros = {
 			.append("g")
 			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+		// let notas_done = false
 		x.domain(dimensions = d3.keys(dataset[0]).filter(function(d) {
-			return (d != "Nombre" && d != "Longitude" && d != "Latitude") && (y[d] = d3.scale.linear()
-				.domain(d3.extent(dataset, function(p) { 
-					return +p[d]; 
-				}))
-				.range([c_height, 0]));
+				return (d != "Nombre" && d != "Longitude" && d != "Latitude" && d != "Region") && (y[d] = d3.scale.linear()
+					.domain(d3.extent(dataset, function(p) { 
+
+						return +p[d]; 
+					}))
+					.range([c_height, 0]));
 		}));
+
+		// usar los mismos dominios para las cordenadas de las notas
+		for (var i = 0; i < d3.keys(dataset[0]).length; i++) {
+			dominio = d3.keys(dataset[0])[i]
+			if (dominio == "Promedio_Notas" || dominio == "Promedio_Mujeres" || dominio == "Promedio_Hombres"){
+				if (filtros.zoom == "Region"){
+					y[dominio].domain([min_nota["total_region"], max_nota["total_region"]])
+				}
+				else{
+					y[dominio].domain([min_nota["total_comuna"], max_nota["total_comuna"]])
+				}
+			}
+		}
+
 
 		// Add grey background lines for context.
 		background = svg.append("g")
@@ -888,6 +953,14 @@ filtros = {
 			.data(dataset)
 			.enter().append("path")
 			.attr("d", path)
+			.attr("style", function(d){
+				if ("Region" in d){
+					return "stroke: "+color_regiones[d.Region]
+				}
+				else{ //si esta en la vista de regiones
+					return "stroke: "+color_regiones[d.Nombre]
+				}
+			})
 			.on("mouseover", function(n){
 				d3.select(this).transition().duration(100)
 				.style({'stroke' : '#F00'});
@@ -897,7 +970,17 @@ filtros = {
 			.on("mousemove", function(){return tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px");})
 			.on("mouseout", function(d){
 				d3.select(this).transition().duration(100)
-				.style({'stroke': 'steelblue' })
+				.attr("style", function(n){
+					if ("Region" in d){
+						color = "stroke: "+color_regiones[d.Region]
+						return color
+					}
+					else{ //si esta en la vista de regiones
+						// console.log(d)
+						color = "stroke: "+color_regiones[d.Nombre]
+						return color
+					}
+				})
 				// .style({'stroke-width' : '2'});
 				return tooltip.style("visibility", "hidden");
 			});
