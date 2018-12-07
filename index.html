@@ -132,12 +132,16 @@
 			fill: none;
 			stroke: #ddd;
 			shape-rendering: crispEdges;
+
+		  /*stroke: none;*/
+		  /*stroke-width: 20px;*/
+		  /*pointer-events: stroke;*/
 		}
 
 		.foreground path {
 			fill: none;
 			/*stroke: steelblue;*/
-			stroke-width: 2;
+			stroke-width: 3px;
 		}
 
 		.brush .extent {
@@ -224,7 +228,7 @@ filtros = {
 
 
 ///////////////////////////////////////////////////////
-//       MANEJO DE COLORES Y REESCALAMIENTO MAPA
+//   FUNCIONES UTILES PARA COLOREO Y SELECCION DATOS
 ///////////////////////////////////////////////////////
 
 	function rescale_cant_colegios(val, max, min, mult){ //el mayor sera "mult" veces mas grande que el menor
@@ -232,10 +236,13 @@ filtros = {
 	}
 
 	function get_discetized_color(nota){
-		deltas = (max_promedio_nota - min_promedio_nota)/discretizacion
+		// deltas = (max_promedio_nota - min_promedio_nota)/discretizacion
+		deltas = (max_nota["selected_promedio"] - min_nota["selected_promedio"])/discretizacion
+
 		pend_discretizada_color = 255/discretizacion
 
-		alpha = parseInt(round(round(nota - min_promedio_nota, 6) / round(deltas, 6), 4))
+		// alpha = parseInt(round(round(nota - min_promedio_nota, 6) / round(deltas, 6), 4))
+		alpha = parseInt(round(round(nota - min_nota["selected_promedio"], 6) / round(deltas, 6), 4))
 
 		bueno = pend_discretizada_color*alpha
 		malo = pend_discretizada_color*(discretizacion - alpha)
@@ -260,6 +267,40 @@ filtros = {
 
 	function round(x, decimales){
 		return Math.round(x*10**decimales)/10**decimales
+	}
+
+
+	function actualizar_data(){
+		bounds = getScreenBounds();
+		max_nota["selected_promedio"] = 0
+		min_nota["selected_promedio"] = 7
+		max_nota["selected_total"] = 0
+		min_nota["selected_total"] = 7
+		selected_data = []
+		for (var i = 0; i < data.length; i++) {
+			this_region = data[i];
+			if (this_region.Latitude > bounds["Latitude"]["Min"] && this_region.Latitude < bounds["Latitude"]["Max"]){
+				if (this_region.Longitude > bounds["Longitude"]["Min"] && this_region.Longitude < bounds["Longitude"]["Max"]){
+					selected_data.push(data[i]);
+
+					max_nota["selected_promedio"] = data[i].Promedio_Notas > max_nota["selected_promedio"] ? data[i].Promedio_Notas : max_nota["selected_promedio"]
+					min_nota["selected_promedio"] = data[i].Promedio_Notas < min_nota["selected_promedio"] ? data[i].Promedio_Notas : min_nota["selected_promedio"]
+
+					max_nota["selected_total"] = data[i].Promedio_Hombres > max_nota["selected_total"] ? data[i].Promedio_Hombres : max_nota["selected_total"]
+					min_nota["selected_total"] = data[i].Promedio_Hombres < min_nota["selected_total"] ? data[i].Promedio_Hombres : min_nota["selected_total"]
+
+					max_nota["selected_total"] = data[i].Promedio_Mujeres > max_nota["selected_total"] ? data[i].Promedio_Mujeres : max_nota["selected_total"]
+					min_nota["selected_total"] = data[i].Promedio_Mujeres < min_nota["selected_total"] ? data[i].Promedio_Mujeres : min_nota["selected_total"]
+				} 
+			}
+		}
+		// console.log(selected_data)
+		clearMap();
+		createMap(selected_data);
+		clearCoordParalelas();
+		createCoordParalelas(selected_data);
+
+		window.clearTimeout(actaulizar_visualizaciones);
 	}
 
 
@@ -288,8 +329,8 @@ filtros = {
 			"Magallanes": "#bfc9ca"}
 
 
-	var map_width = width*0.345; //el mapa usara un 35% del ancho de la pantalla
-	var coord_width = width*0.645; //el grafico de coordenadas paralelas usara un 65% del ancho de la pantalla
+	var map_width = width*0.395; //el mapa usara un 35% del ancho de la pantalla
+	var coord_width = width*0.595; //el grafico de coordenadas paralelas usara un 65% del ancho de la pantalla
 	var coord_height = height*0.5;
 
 	var data_regiones = [];
@@ -301,10 +342,11 @@ filtros = {
 	var min_nota_comuna = 7;
 	var max_nota_region = 2;
 	var min_nota_region = 7;
-	var max_promedio_nota = 0;
-	var min_promedio_nota = 0;
-	var max_nota = {"promedio_region": 0, "mujer_region": 0, "hombre_region": 0, "total_region": 0, "promedio_comuna": 0, "mujer_comuna": 0, "hombre_comuna": 0, "total_comuna": 0} //total es para mujeres, hombres y promedios (usado en coord paralalelas)
-	var min_nota = {"promedio_region": 7, "mujer_region": 7, "hombre_region": 7, "total_region": 7, "promedio_comuna": 7, "mujer_comuna": 7, "hombre_comuna": 7, "total_comuna": 7}
+	// var max_promedio_nota = 0;
+	// var min_promedio_nota = 0;
+	//en max_nota y min_nota, total es para mujeres, hombres y promedios (usado en coord paralalelas) //selected_promedio es para recalcular los maximos y minimos promedio (mapa) //selected_total es para tener el maximo y minimo de tanto hombres y mujeres mezclados (coord paralelas)
+	var max_nota = {"promedio_region": 0, "mujer_region": 0, "hombre_region": 0, "total_region": 0, "promedio_comuna": 0, "mujer_comuna": 0, "hombre_comuna": 0, "total_comuna": 0, "selected_promedio": 0, "selected_total": 0} 
+	var min_nota = {"promedio_region": 7, "mujer_region": 7, "hombre_region": 7, "total_region": 7, "promedio_comuna": 7, "mujer_comuna": 7, "hombre_comuna": 7, "total_comuna": 7, "selected_promedio": 7, "selected_total": 0}
 	var max_cant_colegios_comuna = 0;
 	var min_cant_colegios_comuna = 3000;
 	var max_cant_colegios_region = 0;
@@ -412,19 +454,11 @@ filtros = {
 			// }
 		}
 
-		//creacion del mapa inicial
-		// if (filtros.zoom == "Region"){
-			// max_promedio_nota = max_nota_region;
-			// min_promedio_nota = min_nota_region;
-			max_promedio_nota = max_nota["promedio_region"];
-			min_promedio_nota = min_nota["promedio_region"];
+			// max_promedio_nota = max_nota["promedio_region"];
+			// min_promedio_nota = min_nota["promedio_region"];
+			max_nota["selected_promedio"] = max_nota["promedio_region"];
+			min_nota["selected_promedio"] = min_nota["promedio_region"];
 			createMap(data_regiones)
-		// }
-		// else if (filtros.zoom == "Comuna"){
-		//   max_promedio_nota = max_nota_comuna;
-		//   min_promedio_nota = min_nota_comuna;
-		//   createMap(data_comunas)
-		// }
 
 		createCoordParalelas(data_regiones)
 
@@ -716,12 +750,14 @@ filtros = {
 	zoomed();
 
 	function createMap(dataset) {
-		// if (init == 0){
-		rangos = [min_promedio_nota]
+		// rangos = [min_promedio_nota]
+		rangos = [min_nota["selected_promedio"]]
+		
 		colors = []
 		// console.log("rangos: ")
 		for (var i = 1; i <= discretizacion; i++) {
-			rango_nota = min_promedio_nota+((max_promedio_nota - min_promedio_nota)/discretizacion)*i
+			// rango_nota = min_promedio_nota+((max_promedio_nota - min_promedio_nota)/discretizacion)*i
+			rango_nota = min_nota["selected_promedio"]+((max_nota["selected_promedio"] - min_nota["selected_promedio"])/discretizacion)*i
 			color = get_discetized_color(rangos[i-1])
 			// console.log("nota:",rangos[i-1],"\ncolor:", color)
 
@@ -745,26 +781,6 @@ filtros = {
 	function clearMap(){
 		d3.select("#points").selectAll("circle").remove();
 		document.getElementById("my-legend").innerHTML = "";
-	}
-
-	function actualizar_data(){
-		bounds = getScreenBounds();
-		selected_data = []
-		for (var i = 0; i < data.length; i++) {
-			this_region = data[i];
-			if (this_region.Latitude > bounds["Latitude"]["Min"] && this_region.Latitude < bounds["Latitude"]["Max"]){
-				if (this_region.Longitude > bounds["Longitude"]["Min"] && this_region.Longitude < bounds["Longitude"]["Max"]){
-					selected_data.push(data[i]);
-				} 
-			}
-		}
-		// console.log(selected_data)
-		clearMap();
-		createMap(selected_data);
-		clearCoordParalelas();
-		createCoordParalelas(selected_data);
-
-		window.clearTimeout(actaulizar_visualizaciones);
 	}
 
 	function zoomed() {
@@ -791,44 +807,28 @@ filtros = {
 		if (zoom.scale() >= 49667){
 			if (filtros.zoom == "Region") { //modificar a vista de comunas
 				filtros.zoom = "Comuna"
-				max_promedio_nota = max_nota["promedio_comuna"];
-				min_promedio_nota = min_nota["promedio_comuna"];
-				// clearMap();
-				// createMap(data_comunas);
-				// clearCoordParalelas();
-				// createCoordParalelas(data_comunas);
+				max_nota["selected_promedio"] = max_nota["promedio_comuna"];
+				min_nota["selected_promedio"] = min_nota["promedio_comuna"];
+				// max_promedio_nota = max_nota["promedio_comuna"];
+				// min_promedio_nota = min_nota["promedio_comuna"];
+
 				actaulizar_visualizaciones = setTimeout(actualizar_data, 200);
 			}
 		}
 		else {
 			if (filtros.zoom == "Comuna") { //modificar a vista de regiones
 				filtros.zoom = "Region"
-				max_promedio_nota = max_nota["promedio_region"];
-				min_promedio_nota = min_nota["promedio_region"];
-				// clearMap();
-				// createMap(data_regiones);
-				// clearCoordParalelas();
-				// createCoordParalelas(data_regiones);
+				max_nota["selected_promedio"] = max_nota["promedio_region"];
+				min_nota["selected_promedio"] = min_nota["promedio_region"];
+				// max_promedio_nota = max_nota["promedio_region"];
+				// min_promedio_nota = min_nota["promedio_region"];
+
 				actaulizar_visualizaciones = setTimeout(actualizar_data, 200);
 			}
 		}
 
-
 		window.clearTimeout(actaulizar_visualizaciones);
 		actaulizar_visualizaciones = setTimeout(actualizar_data, 1000);
-
-		// se_actualizo = false
-
-		// if (!se_actualizo){ //aqui poner un temporisador de 1 segundo, si se acaba el tiempo, se ejecuta esto
-
-			// if (selected_data != []){
-			// 	clearMap();
-			// 	createMap(selected_data);
-			// 	clearCoordParalelas();
-			// 	createCoordParalelas(selected_data);
-			// }
-		// }
-
 
 		var circles = d3.selectAll("circle")
 				.attr("cx", function(d) {return projection([d.Longitude,d.Latitude])[0]})
@@ -853,15 +853,6 @@ filtros = {
 				})
 				
 				.attr("fill", function(d) { //coloreo
-					// f(x) = ax + b
-					// a_bueno = 255/(max_promedio_nota-min_promedio_nota)
-					// b_bueno = -a_bueno*min_promedio_nota
-					// bueno = a_bueno*d.Promedio_Notas+b_bueno
-
-					// a_malo = 255/(min_promedio_nota-max_promedio_nota)
-					// b_malo = -a_malo*max_promedio_nota
-					// malo = a_malo*d.Promedio_Notas+b_malo
-
 					return get_discetized_color(d.Promedio_Notas)
 				})
 				.attr("stroke", "black");
@@ -966,19 +957,15 @@ filtros = {
 	c_width = coord_width - margin.left - margin.right,
 	c_height = coord_height - margin.top - margin.bottom;
 
-	// d3.csv("data5.csv", function(error, region) {
-		// Extract the list of dimensions and create a scale for each.
-		// createCoordParalelas(region)
-	// });
-		var x = d3.scale.ordinal().rangePoints([0, c_width], 1),
-				y = {},
-				dragging = {};
+	var x = d3.scale.ordinal().rangePoints([0, c_width], 1),
+			y = {},
+			dragging = {};
 
-		var line = d3.svg.line(),
-				axis = d3.svg.axis().orient("left"),
-				background,
-				foreground,
-				svg;
+	var line = d3.svg.line(),
+			axis = d3.svg.axis().orient("left"),
+			background,
+			foreground,
+			svg;
 
 
 	function createCoordParalelas(dataset){
@@ -993,24 +980,38 @@ filtros = {
 
 		// let notas_done = false
 		x.domain(dimensions = d3.keys(dataset[0]).filter(function(d) {
-				return (d != "Nombre" && d != "Longitude" && d != "Latitude" && d != "Region") && (y[d] = d3.scale.linear()
+			if (d != "Nombre" && d != "Longitude" && d != "Latitude" && d != "Region"){
+				 y[d] = d3.scale.linear()
 					.domain(d3.extent(dataset, function(p) { 
 
 						return +p[d]; 
 					}))
-					.range([c_height, 0]));
+					.range([c_height, 0]);
+				return y[d];
+			}
+			else{
+				// asd = d3.scale.domain(dataset, function(p) {
+				// 	return p[d]
+				// })
+				// console.log(asd)
+				return false
+			}
+
 		}));
+
+		// x.domain().push("Nombre")
 
 		// usar los mismos dominios para las cordenadas de las notas
 		for (var i = 0; i < d3.keys(dataset[0]).length; i++) {
 			dominio = d3.keys(dataset[0])[i]
 			if (dominio == "Promedio_Notas" || dominio == "Promedio_Mujeres" || dominio == "Promedio_Hombres"){
-				if (filtros.zoom == "Region"){
-					y[dominio].domain([min_nota["total_region"], max_nota["total_region"]])
-				}
-				else{
-					y[dominio].domain([min_nota["total_comuna"], max_nota["total_comuna"]])
-				}
+				// if (filtros.zoom == "Region"){
+				// 	y[dominio].domain([min_nota["total_region"], max_nota["total_region"]])
+				// }
+				// else{
+				// 	y[dominio].domain([min_nota["total_comuna"], max_nota["total_comuna"]])
+				// }
+				y[dominio].domain([min_nota["selected_total"], max_nota["selected_total"]])
 			}
 		}
 
