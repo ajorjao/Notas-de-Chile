@@ -185,8 +185,6 @@
 //NOTA: TODO ESTO SE BORRARA A FUTURO, PERO POR AHORA SE DEJA AQUI PARA PROBAR DATOS MÁS FACILMENTE
 /////////////////// Parametros ////////////////////////
 filtros = {
-	"zoom_type": "Automatico", // si se acerca lo suficiente, la vista se cambia a la de comunas (hace que se ignore la variable "zoom")
-	// "zoom_type": "Manual", // se puede modificar el zoom sin que se modifiquen los datos que se están mostrando
 	"zoom": "Region", 
 	// "zoom": "Comuna", 
 
@@ -213,6 +211,14 @@ filtros = {
 	"Genero": null,
 	// "Genero": "Hombres",
 	// "Genero": "Mujeres",
+
+	"Coordenadas_Paralelas": {
+		"N_Colegios": null, // {"min": 0, "max": 0}
+		"Asistencia_Promedio": null, // {"min": 0, "max": 0}
+		"Promedio_Notas": null, // {"min": 0, "max": 0}
+		"Promedio_Mujeres": null, // {"min": 0, "max": 0}
+		"Promedio_Hombres": null // {"min": 0, "max": 0}
+	}
 };
 ///////////////////////////////////////////////////////
 
@@ -246,6 +252,11 @@ filtros = {
 	function rgbToHex(r, g, b) {
 			return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
 	}
+
+	function hexToR(h) {return parseInt((cutHex(h)).substring(0,2),16)}
+	function hexToG(h) {return parseInt((cutHex(h)).substring(2,4),16)}
+	function hexToB(h) {return parseInt((cutHex(h)).substring(4,6),16)}
+	function cutHex(h) {return (h.charAt(0)=="#") ? h.substring(1,7):h}
 
 	function round(x, decimales){
 		return Math.round(x*10**decimales)/10**decimales
@@ -283,6 +294,9 @@ filtros = {
 
 	var data_regiones = [];
 	var data_comunas = [];
+	var selected_data = [];
+	var actaulizar_visualizaciones // cronometro para que los mapas se actualicen despues de 1 segundo de dejar de mover el zoom
+
 	var max_nota_comuna = 2;
 	var min_nota_comuna = 7;
 	var max_nota_region = 2;
@@ -672,7 +686,7 @@ filtros = {
 			.html(function(d) { 
 				return filtros.zoom + ": "+ d.Nombre + 
 					"<br/>Num Colegios: " + d.N_Colegios + 
-					"<br/>Promedio Notas: " + round(d.Promedio_Notas,2) ;
+					"<br/>Promedio Notas: " + round(d.Promedio_Notas,2);
 			})
 
 
@@ -680,25 +694,20 @@ filtros = {
 
 
 	d3.json('regiones.topojson', function(error, chile) {
-		// console.log(topojson.feature(chile, chile.objects["chile-regions"]).features)
-
-
-    d3.select("#points").selectAll("vector").data(topojson.feature(chile, chile.objects["chile-regions"]).features)
-	    .enter()
-	    .append("path")
-	    .attr("d", tilePath)
-	    .attr("class", "countries")
-	    // .style("fill", "red")
-	    .style("fill", function(d){
-	    	// console.log(d.properties.Region)
-	    	return color_regiones[d.properties.Region]
-	    })
-	    .style("stroke-width", 1)
-	    .style("stroke", "black")
-	    .style("fill-opacity", .5)
+		d3.select("#points").selectAll("vector").data(topojson.feature(chile, chile.objects["chile-regions"]).features)
+			.enter()
+			.append("path")
+			.attr("d", tilePath)
+			.attr("class", "countries")
+			// .style("fill", "red")
+			.style("fill", function(d){
+				// console.log(d.properties.Region)
+				return color_regiones[d.properties.Region]
+			})
+			.style("stroke-width", 1)
+			.style("stroke", "black")
+			.style("fill-opacity", .5)
 	});
-
-
 
 
 
@@ -738,6 +747,26 @@ filtros = {
 		document.getElementById("my-legend").innerHTML = "";
 	}
 
+	function actualizar_data(){
+		bounds = getScreenBounds();
+		selected_data = []
+		for (var i = 0; i < data.length; i++) {
+			this_region = data[i];
+			if (this_region.Latitude > bounds["Latitude"]["Min"] && this_region.Latitude < bounds["Latitude"]["Max"]){
+				if (this_region.Longitude > bounds["Longitude"]["Min"] && this_region.Longitude < bounds["Longitude"]["Max"]){
+					selected_data.push(data[i]);
+				} 
+			}
+		}
+		// console.log(selected_data)
+		clearMap();
+		createMap(selected_data);
+		clearCoordParalelas();
+		createCoordParalelas(selected_data);
+
+		window.clearTimeout(actaulizar_visualizaciones);
+	}
+
 	function zoomed() {
 		var tiles = tile
 				.scale(zoom.scale())
@@ -748,33 +777,58 @@ filtros = {
 				.scale(zoom.scale() / 2 / Math.PI)
 				.translate(zoom.translate());
 
-    d3.select("#points").selectAll("path")
-    	.attr("d", geoPath);
+		d3.select("#points").selectAll("path")
+			.attr("d", geoPath);
 
-		if (filtros.zoom_type == "Automatico"){
-			if (zoom.scale() >= 49667){
-				if (filtros.zoom == "Region") { //modificar a vista de comunas
-					filtros.zoom = "Comuna"
-					max_promedio_nota = max_nota["promedio_comuna"];
-					min_promedio_nota = min_nota["promedio_comuna"];
-					clearMap();
-					createMap(data_comunas);
-					clearCoordParalelas();
-					createCoordParalelas(data_comunas);
-				}
-			}
-			else {
-				if (filtros.zoom == "Comuna") { //modificar a vista de regiones
-					filtros.zoom = "Region"
-					max_promedio_nota = max_nota["promedio_region"];
-					min_promedio_nota = min_nota["promedio_region"];
-					clearMap();
-					createMap(data_regiones);
-					clearCoordParalelas();
-					createCoordParalelas(data_regiones);
-				}
+
+		if (filtros.zoom == "Region"){
+			data = data_regiones
+		}
+		else{
+			data = data_comunas
+		}
+
+		if (zoom.scale() >= 49667){
+			if (filtros.zoom == "Region") { //modificar a vista de comunas
+				filtros.zoom = "Comuna"
+				max_promedio_nota = max_nota["promedio_comuna"];
+				min_promedio_nota = min_nota["promedio_comuna"];
+				// clearMap();
+				// createMap(data_comunas);
+				// clearCoordParalelas();
+				// createCoordParalelas(data_comunas);
+				actaulizar_visualizaciones = setTimeout(actualizar_data, 200);
 			}
 		}
+		else {
+			if (filtros.zoom == "Comuna") { //modificar a vista de regiones
+				filtros.zoom = "Region"
+				max_promedio_nota = max_nota["promedio_region"];
+				min_promedio_nota = min_nota["promedio_region"];
+				// clearMap();
+				// createMap(data_regiones);
+				// clearCoordParalelas();
+				// createCoordParalelas(data_regiones);
+				actaulizar_visualizaciones = setTimeout(actualizar_data, 200);
+			}
+		}
+
+
+		window.clearTimeout(actaulizar_visualizaciones);
+		actaulizar_visualizaciones = setTimeout(actualizar_data, 1000);
+
+		// se_actualizo = false
+
+		// if (!se_actualizo){ //aqui poner un temporisador de 1 segundo, si se acaba el tiempo, se ejecuta esto
+
+			// if (selected_data != []){
+			// 	clearMap();
+			// 	createMap(selected_data);
+			// 	clearCoordParalelas();
+			// 	createCoordParalelas(selected_data);
+			// }
+		// }
+
 
 		var circles = d3.selectAll("circle")
 				.attr("cx", function(d) {return projection([d.Longitude,d.Latitude])[0]})
@@ -839,7 +893,8 @@ filtros = {
 					hex_color = rgbToHex(colors[i].r, colors[i].g, colors[i].b)
 					if (i == 0){
 						// html_to_write += "<li><span style='background:"+hex_color+";'></span>"+round(ranges[0],2).toString()+" - "+round(ranges[i+1],2).toString()+"</li>"
-						html_to_write += "<li><span style='background:"+hex_color+";'></span><span style='right: 9px; position: relative; width: auto;'>"+round(ranges[0],2).toString()+"</span><span style='right: -18px; position: relative; width: auto;'>"+round(ranges[i+1],2).toString()+"</span></li>"
+						html_to_write += "<li><span style='background: rgb("+colors[i].r+","+colors[i].g+","+colors[i].b+");'></span><span style='right: 9px; position: relative; width: auto;'>"+round(ranges[0],2).toString()+"</span><span style='right: -18px; position: relative; width: auto;'>"+round(ranges[i+1],2).toString()+"</span></li>"
+						// html_to_write += "<li><span style='background:"+hex_color+";'></span><span style='right: 9px; position: relative; width: auto;'>"+round(ranges[0],2).toString()+"</span><span style='right: -18px; position: relative; width: auto;'>"+round(ranges[i+1],2).toString()+"</span></li>"
 					}
 					else{
 						html_to_write += "<li><span style='background:"+hex_color+";'></span><span style='right: -10px; position: relative;'>"+round(ranges[i+1],2).toString()+"</span></li>"
@@ -864,8 +919,30 @@ filtros = {
 
 	function formatLocation(p, k) {
 		var format = d3.format("." + Math.floor(Math.log(k) / 2 - 2) + "f");
-		return (p[1] < 0 ? format(-p[1]) + "°S" : format(p[1]) + "°N") + " "
-				 + (p[0] < 0 ? format(-p[0]) + "°W" : format(p[0]) + "°E");
+		return {"Latitude": parseFloat(format(p[1])), "Longitude": parseFloat(format(p[0]))}
+	}
+
+	function getScreenBounds() {
+		izq_arriba = getPoint(0,0);
+	  der_abajo = getPoint();
+	  latitudes = {
+	  	"Max": Math.max(izq_arriba["Latitude"], der_abajo["Latitude"]), 
+	  	"Min": Math.min(izq_arriba["Latitude"], der_abajo["Latitude"])
+	  }
+	  longitudes = {
+	  	"Max": Math.max(izq_arriba["Longitude"], der_abajo["Longitude"]), 
+	  	"Min": Math.min(izq_arriba["Longitude"], der_abajo["Longitude"])
+	  }
+	  return {"Latitude": latitudes, "Longitude": longitudes}
+	}
+
+	function getPoint(x,y) {
+	  if (x == null) x = map_width;
+	  if (y == null) y = height;  
+	  var point = points.node().createSVGPoint();
+	  point.x = x, point.y = y;
+	  point = point.matrixTransform(points.node().getScreenCTM().inverse());
+	  return formatLocation(projection.invert([point.x, point.y]), zoom.scale());
 	}
 
 
@@ -972,14 +1049,20 @@ filtros = {
 				d3.select(this).transition().duration(100)
 				.attr("style", function(n){
 					if ("Region" in d){
-						color = "stroke: "+color_regiones[d.Region]
-						return color
+						color = String(hexToR(color_regiones[d.Region]))+","+String(hexToG(color_regiones[d.Region]))+","+String(hexToB(color_regiones[d.Region]))
+						// color = color_regiones[d.Region]
+						// console.log(color)
+						// return "stroke: #555"
+						// return color
 					}
 					else{ //si esta en la vista de regiones
-						// console.log(d)
-						color = "stroke: "+color_regiones[d.Nombre]
-						return color
+						color = String(hexToR(color_regiones[d.Nombre]))+","+String(hexToG(color_regiones[d.Nombre]))+","+String(hexToB(color_regiones[d.Nombre]))
+						// color = color_regiones[d.Nombre]
+						// console.log(color)
+						// return "stroke: #555"
+						// return color
 					}
+					return "stroke: rgb("+color+")"
 				})
 				// .style({'stroke-width' : '2'});
 				return tooltip.style("visibility", "hidden");
