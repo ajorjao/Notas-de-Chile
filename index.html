@@ -300,7 +300,7 @@ filtros = {
 		clearCoordParalelas();
 		createCoordParalelas(selected_data);
 
-		window.clearTimeout(actaulizar_visualizaciones);
+		window.clearTimeout(actualizar_visualizaciones);
 	}
 
 
@@ -336,7 +336,7 @@ filtros = {
 	var data_regiones = [];
 	var data_comunas = [];
 	var selected_data = [];
-	var actaulizar_visualizaciones // cronometro para que los mapas se actualicen despues de 1 segundo de dejar de mover el zoom
+	var actualizar_visualizaciones // cronometro para que los mapas se actualicen despues de 1 segundo de dejar de mover el zoom
 
 	var max_nota_comuna = 2;
 	var min_nota_comuna = 7;
@@ -718,6 +718,24 @@ filtros = {
 			.attr('class', 'd3-tip')
 			.offset([-10, 0])
 			.html(function(d) { 
+				foreground.
+					style("stroke", function(c){
+						window.clearTimeout(actualizar_visualizaciones);
+						actualizar_visualizaciones = setTimeout(actualizar_data, 1000);
+
+						if (c.Nombre == d.Nombre){
+							return "#F00"
+						}
+						else{
+							if ("Region" in c){
+								return color_regiones[c.Region]
+							}
+							else{ //si esta en la vista de regiones
+								return color_regiones[c.Nombre]
+							}
+						}
+					})
+
 				return filtros.zoom + ": "+ d.Nombre + 
 					"<br/>Num Colegios: " + d.N_Colegios + 
 					"<br/>Promedio Notas: " + round(d.Promedio_Notas,2);
@@ -742,9 +760,6 @@ filtros = {
 			.style("stroke", "black")
 			.style("fill-opacity", .5)
 	});
-
-
-
 
 	points.call(tip);
 	zoomed();
@@ -812,7 +827,7 @@ filtros = {
 				// max_promedio_nota = max_nota["promedio_comuna"];
 				// min_promedio_nota = min_nota["promedio_comuna"];
 
-				actaulizar_visualizaciones = setTimeout(actualizar_data, 200);
+				actualizar_visualizaciones = setTimeout(actualizar_data, 200);
 			}
 		}
 		else {
@@ -823,12 +838,12 @@ filtros = {
 				// max_promedio_nota = max_nota["promedio_region"];
 				// min_promedio_nota = min_nota["promedio_region"];
 
-				actaulizar_visualizaciones = setTimeout(actualizar_data, 200);
+				actualizar_visualizaciones = setTimeout(actualizar_data, 200);
 			}
 		}
 
-		window.clearTimeout(actaulizar_visualizaciones);
-		actaulizar_visualizaciones = setTimeout(actualizar_data, 1000);
+		window.clearTimeout(actualizar_visualizaciones);
+		actualizar_visualizaciones = setTimeout(actualizar_data, 1000);
 
 		var circles = d3.selectAll("circle")
 				.attr("cx", function(d) {return projection([d.Longitude,d.Latitude])[0]})
