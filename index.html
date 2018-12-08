@@ -249,11 +249,11 @@ filtros = {
 	// "Agno": "2017",
 
 	"Coordenadas_Paralelas": {
-		"N_Colegios": null, // {"min": 0, "max": 0}
-		"Asistencia_Promedio": null, // {"min": 0, "max": 0}
-		"Promedio_Notas": null, // {"min": 0, "max": 0}
-		"Promedio_Mujeres": null, // {"min": 0, "max": 0}
-		"Promedio_Hombres": null // {"min": 0, "max": 0}
+		"N_Colegios": {"min": null, "max": null},
+		"Asistencia_Promedio": {"min": null, "max": null},
+		"Promedio_Notas": {"min": null, "max": null},
+		"Promedio_Mujeres": {"min": null, "max": null},
+		"Promedio_Hombres": {"min": null, "max": null}
 	}
 };
 ///////////////////////////////////////////////////////
@@ -301,8 +301,17 @@ filtros = {
 		return Math.round(x*10**decimales)/10**decimales
 	}
 
-
 	function actualizar_data(map=true, coord=true){
+
+		if (coord){ // si se actualizan las coordenadas paralelas, se deben reiniciar filtros porq sino quedan como "seleccionados" sin poder quitarse
+			filtros["Coordenadas_Paralelas"] = {
+				"N_Colegios": {"min": null, "max": null},
+				"Asistencia_Promedio": {"min": null, "max": null},
+				"Promedio_Notas": {"min": null, "max": null},
+				"Promedio_Mujeres": {"min": null, "max": null},
+				"Promedio_Hombres": {"min": null, "max": null}
+			}
+		}
 		bounds = getScreenBounds();
 		max_nota["selected_promedio"] = 0
 		min_nota["selected_promedio"] = 7
@@ -313,6 +322,41 @@ filtros = {
 			this_zone = data[i];
 			if (this_zone.Latitude > bounds["Latitude"]["Min"] && this_zone.Latitude < bounds["Latitude"]["Max"]){
 				if (this_zone.Longitude > bounds["Longitude"]["Min"] && this_zone.Longitude < bounds["Longitude"]["Max"]){
+
+					// Object.keys(filtros["Coordenadas_Paralelas"]).forEach(function(d){
+					// 	// console.log(d)
+					// 	if (filtros["Coordenadas_Paralelas"][d]["max"] != null && filtros["Coordenadas_Paralelas"][d]["min"] != null){
+					// 		if (this_zone > filtros["Coordenadas_Paralelas"][d]["max"] || this_zone < filtros["Coordenadas_Paralelas"][d]["min"]){ //si tiene problemas con el filtro, se salta el objeto
+					// 			continue //no se puede usar un continue dentro de un forEach
+					// 		}
+					// 	}
+					// })
+
+					if (filtros["Coordenadas_Paralelas"]["N_Colegios"]["max"] != null && filtros["Coordenadas_Paralelas"]["N_Colegios"]["min"] != null){
+						if (this_zone.N_Colegios > filtros["Coordenadas_Paralelas"]["N_Colegios"]["max"] || this_zone.N_Colegios < filtros["Coordenadas_Paralelas"]["N_Colegios"]["min"]){ //si tiene problemas con el filtro, se salta el objeto
+							continue
+						}
+					}
+					if (filtros["Coordenadas_Paralelas"]["Asistencia_Promedio"]["max"] != null && filtros["Coordenadas_Paralelas"]["Asistencia_Promedio"]["min"] != null){
+						if (this_zone.Asistencia_Promedio > filtros["Coordenadas_Paralelas"]["Asistencia_Promedio"]["max"] || this_zone.Asistencia_Promedio < filtros["Coordenadas_Paralelas"]["Asistencia_Promedio"]["min"]){ //si tiene problemas con el filtro, se salta el objeto
+							continue
+						}
+					}
+					if (filtros["Coordenadas_Paralelas"]["Promedio_Notas"]["max"] != null && filtros["Coordenadas_Paralelas"]["Promedio_Notas"]["min"] != null){
+						if (this_zone.Promedio_Notas > filtros["Coordenadas_Paralelas"]["Promedio_Notas"]["max"] || this_zone.Promedio_Notas < filtros["Coordenadas_Paralelas"]["Promedio_Notas"]["min"]){ //si tiene problemas con el filtro, se salta el objeto
+							continue
+						}
+					}
+					if (filtros["Coordenadas_Paralelas"]["Promedio_Mujeres"]["max"] != null && filtros["Coordenadas_Paralelas"]["Promedio_Mujeres"]["min"] != null){
+						if (this_zone.Promedio_Mujeres > filtros["Coordenadas_Paralelas"]["Promedio_Mujeres"]["max"] || this_zone.Promedio_Mujeres < filtros["Coordenadas_Paralelas"]["Promedio_Mujeres"]["min"]){ //si tiene problemas con el filtro, se salta el objeto
+							continue
+						}
+					}
+					if (filtros["Coordenadas_Paralelas"]["Promedio_Hombres"]["max"] != null && filtros["Coordenadas_Paralelas"]["Promedio_Hombres"]["min"] != null){
+						if (this_zone.Promedio_Hombres > filtros["Coordenadas_Paralelas"]["Promedio_Hombres"]["max"] || this_zone.Promedio_Hombres < filtros["Coordenadas_Paralelas"]["Promedio_Hombres"]["min"]){ //si tiene problemas con el filtro, se salta el objeto
+							continue
+						}
+					}
 
 					selected_data.push(data[i]);
 
@@ -329,14 +373,17 @@ filtros = {
 		}
 		// console.log(selected_data)
 		if (map){
+			// console.log("actualiced map")
 			clearMap();
 			createMap(selected_data);
 		}
 		if (coord){
+			// console.log("actualiced coord")
 			clearCoordParalelas();
 			createCoordParalelas(selected_data);
 		}
 
+		$("#loader").hide();
 		// console.log("data actualizada")
 
 		window.clearTimeout(actualizar_visualizaciones);
@@ -519,8 +566,6 @@ filtros = {
 				data = data_comunas
 			}
 			actualizar_data()
-			// window.clearTimeout(actualizar_visualizaciones);
-			// actualizar_visualizaciones = setTimeout(actualizar_data, 1000);
 		});
 	}
 
@@ -781,6 +826,7 @@ filtros = {
 			.offset([-10, 0])
 			.html(function(d) { 
 				window.clearTimeout(actualizar_visualizaciones);
+				// $("#loader").show();
 				actualizar_visualizaciones = setTimeout(function(t) {
 					actualizar_data(map=false)
 				}, 2000);
@@ -891,6 +937,7 @@ filtros = {
 				// max_promedio_nota = max_nota["promedio_comuna"];
 				// min_promedio_nota = min_nota["promedio_comuna"];
 
+				$("#loader").show();
 				actualizar_visualizaciones = setTimeout(actualizar_data, 200);
 			}
 		}
@@ -902,11 +949,13 @@ filtros = {
 				// max_promedio_nota = max_nota["promedio_region"];
 				// min_promedio_nota = min_nota["promedio_region"];
 
+				$("#loader").show();
 				actualizar_visualizaciones = setTimeout(actualizar_data, 200);
 			}
 		}
 
 		window.clearTimeout(actualizar_visualizaciones);
+		$("#loader").show();
 		actualizar_visualizaciones = setTimeout(actualizar_data, 1000);
 
 		var circles = d3.selectAll("circle")
@@ -1156,7 +1205,7 @@ filtros = {
 			.attr("transform", function(d) { 
 				return "translate(" + x(d) + ")"; 
 			})
-			.call(d3.behavior.drag()
+			.call(d3.behavior.drag() //arrastrar las dimensiones
 				.origin(function(d) { 
 					return {x: x(d)
 					};
@@ -1249,6 +1298,26 @@ filtros = {
 		extents = actives.map(function(p) { 
 			return y[p].brush.extent(); 
 		});
+
+		filtros["Coordenadas_Paralelas"] = {
+			"N_Colegios": {"min": null, "max": null},
+			"Asistencia_Promedio": {"min": null, "max": null},
+			"Promedio_Notas": {"min": null, "max": null},
+			"Promedio_Mujeres": {"min": null, "max": null},
+			"Promedio_Hombres": {"min": null, "max": null}
+		}
+
+		for (var i = actives.length - 1; i >= 0; i--) {
+			filtros["Coordenadas_Paralelas"][actives[i]]["min"] = extents[i][0]
+			filtros["Coordenadas_Paralelas"][actives[i]]["max"] = extents[i][1]
+		}
+
+		window.clearTimeout(actualizar_visualizaciones);
+		$("#loader").show();
+		actualizar_visualizaciones = setTimeout(function(t) {
+			actualizar_data(true,false)
+		}, 1000);
+
 		foreground.style("display", function(d) {
 			return actives.every(function(p, i) {
 				return extents[i][0] <= d[p] && d[p] <= extents[i][1];
