@@ -7,6 +7,40 @@
 		margin: 0;
 		overflow-y: hidden;
 	}
+	#filtros {
+		position: absolute;
+		width: 20%;
+		left: 30%;
+		bottom: 0px;
+		z-index: 100;
+	}
+	#filtros .card-header {
+		text-align: center;
+	}
+	#loader {
+		float: right;
+		margin: 0.15rem;
+		border: 6px solid #a5a5a5;
+		border-radius: 50%;
+		border-top: 6px solid #3498db;
+		width: 20px;
+		height: 20px;
+		-webkit-animation: spin 1s linear infinite; /* Safari */
+		animation: spin 1s linear infinite;
+    visibility: visible;
+	}
+
+	/* Safari */
+	@-webkit-keyframes spin {
+		0% { -webkit-transform: rotate(0deg); }
+		100% { -webkit-transform: rotate(360deg); }
+	}
+
+	@keyframes spin {
+		0% { transform: rotate(0deg); }
+		100% { transform: rotate(360deg); }
+	}
+
 	/*mapa*/
 		#container {
 			position: relative;
@@ -133,9 +167,9 @@
 			stroke: #ddd;
 			shape-rendering: crispEdges;
 
-		  /*stroke: none;*/
-		  /*stroke-width: 20px;*/
-		  /*pointer-events: stroke;*/
+			/*stroke: none;*/
+			/*stroke-width: 20px;*/
+			/*pointer-events: stroke;*/
 		}
 
 		.foreground path {
@@ -162,21 +196,27 @@
 			cursor: move;
 		}
 
-		.tooltip {
+		.tooltip2 {
+			font-family: Helvetica, Arial, sans-serif;
 			background-color: rgba(220,220,220,0.8);
 			color: #333;
 			margin: 10px;
-			height: 25px;
 			padding-right: 10px;
 			padding-left: 10px; 
 			padding-top: 10px;
+			padding-bottom: 8px; 
 			-webkit-border-radius:10px;
 			-moz-border-radius:10px;
 			border-radius:10px;
 		}
 </style>
-
 <body>
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+
 <script src="d3.v3.min.js"></script>
 <!-- <script src="http://d3js.org/d3.v3.min.js"></script> -->
 <script src="d3.geo.tile.v0.min.js"></script>
@@ -186,14 +226,10 @@
 
 <script>
 
-//NOTA: TODO ESTO SE BORRARA A FUTURO, PERO POR AHORA SE DEJA AQUI PARA PROBAR DATOS MÁS FACILMENTE
 /////////////////// Parametros ////////////////////////
 filtros = {
 	"zoom": "Region", 
 	// "zoom": "Comuna", 
-
-	// "Escala_Cant_Colegios": false, //si se desea cambiar el tamaño los circulos acorde a la cantidad de colegios de la zona
-	"Escala_Cant_Colegios": true,
 
 	"Dependencia_Colegio": null, 
 	// "Dependencia_Colegio": "Municipal", 
@@ -211,10 +247,6 @@ filtros = {
 	// "Agno": "2015",
 	// "Agno": "2016",
 	// "Agno": "2017",
-
-	"Genero": null,
-	// "Genero": "Hombres",
-	// "Genero": "Mujeres",
 
 	"Coordenadas_Paralelas": {
 		"N_Colegios": null, // {"min": 0, "max": 0}
@@ -270,7 +302,7 @@ filtros = {
 	}
 
 
-	function actualizar_data(){
+	function actualizar_data(map=true, coord=true){
 		bounds = getScreenBounds();
 		max_nota["selected_promedio"] = 0
 		min_nota["selected_promedio"] = 7
@@ -278,9 +310,10 @@ filtros = {
 		min_nota["selected_total"] = 7
 		selected_data = []
 		for (var i = 0; i < data.length; i++) {
-			this_region = data[i];
-			if (this_region.Latitude > bounds["Latitude"]["Min"] && this_region.Latitude < bounds["Latitude"]["Max"]){
-				if (this_region.Longitude > bounds["Longitude"]["Min"] && this_region.Longitude < bounds["Longitude"]["Max"]){
+			this_zone = data[i];
+			if (this_zone.Latitude > bounds["Latitude"]["Min"] && this_zone.Latitude < bounds["Latitude"]["Max"]){
+				if (this_zone.Longitude > bounds["Longitude"]["Min"] && this_zone.Longitude < bounds["Longitude"]["Max"]){
+
 					selected_data.push(data[i]);
 
 					max_nota["selected_promedio"] = data[i].Promedio_Notas > max_nota["selected_promedio"] ? data[i].Promedio_Notas : max_nota["selected_promedio"]
@@ -295,10 +328,16 @@ filtros = {
 			}
 		}
 		// console.log(selected_data)
-		clearMap();
-		createMap(selected_data);
-		clearCoordParalelas();
-		createCoordParalelas(selected_data);
+		if (map){
+			clearMap();
+			createMap(selected_data);
+		}
+		if (coord){
+			clearCoordParalelas();
+			createCoordParalelas(selected_data);
+		}
+
+		// console.log("data actualizada")
 
 		window.clearTimeout(actualizar_visualizaciones);
 	}
@@ -355,114 +394,137 @@ filtros = {
 	var promedio_data = {};
 
 
-
 ///////////////////////////////////////////////////////
 //          MANEJO DE DATOS DEL CSV
 ///////////////////////////////////////////////////////
+	function read_dataset(new_filter=null, value=null){
+		$("#loader").show()
 
-	d3.csv("Rendimiento_por_cursos_georeferenciados3.csv", type, function(error, dataset) { 
-		if (error) throw error;
+		if (new_filter && value){
+			value = (value == "null") ? null : value
+			filtros[new_filter] = value
 
-		let nombre_region;
-		let region;
-		let nombre_comuna;
-		let comuna;
+		}
+		d3.csv("Rendimiento_por_cursos_georeferenciados3.csv", type, function(error, dataset) { 
+			if (error) throw error;
 
-		let promedio_nota;
+			let nombre_region;
+			let region;
+			let nombre_comuna;
+			let comuna;
 
-		// se buscan los datos maximos y minimos de n_colegios y promedios
-		// ademas se guarda la data en data_regiones y data_comunas (se guarda Nombre, N_Colegios, Promedio_Notas, Longitude, Latitude)
-		for (var i = 0; i < Object.keys(promedio_data).length; i++) {
-			nombre_region = Object.keys(promedio_data)[i]
-			region = promedio_data[nombre_region]
+			let promedio_nota;
 
-			promedio_mujeres = (region.Suma_Nota_Mujeres/region.N_Cursos_Mujeres);
-			promedio_hombres = (region.Suma_Nota_Hombres/region.N_Cursos_Hombres);
-			promedio_nota = (region.Suma_Nota_Promedio/region.N_Cursos);
-			asistencia_promedio = (region.Suma_Asistencia_Promedio/region.N_Cursos);
-			// edad_promedio = (region.Suma_Edad_Promedio/region.N_Cursos);
+			data_regiones = [];
+			data_comunas = [];
 
-			cant_colegios = region.N_Colegios;
-			// if (promedio_nota > max_nota_region) {max_nota_region = promedio_nota};
-			// if (promedio_nota < min_nota_region) {min_nota_region = promedio_nota};
-			if (promedio_nota > max_nota["promedio_region"]) {max_nota["promedio_region"] = promedio_nota};
-			if (promedio_nota < min_nota["promedio_region"]) {min_nota["promedio_region"] = promedio_nota};
-			if (promedio_mujeres > max_nota["mujer_region"]) {max_nota["mujer_region"] = promedio_mujeres};
-			if (promedio_mujeres < min_nota["mujer_region"]) {min_nota["mujer_region"] = promedio_mujeres};
-			if (promedio_hombres > max_nota["hombre_region"]) {max_nota["hombre_region"] = promedio_hombres};
-			if (promedio_hombres < min_nota["hombre_region"]) {min_nota["hombre_region"] = promedio_hombres};
-			if (Math.max(promedio_nota, promedio_mujeres, promedio_hombres) > max_nota["total_region"]){
-				max_nota["total_region"] = Math.max(promedio_nota, promedio_mujeres, promedio_hombres)
-			};
-			if (Math.min(promedio_nota, promedio_mujeres, promedio_hombres) < min_nota["total_region"]){
-				min_nota["total_region"] = Math.min(promedio_nota, promedio_mujeres, promedio_hombres)
-			};
-			if (promedio_nota < min_nota["total_region"]) {min_nota["total_region"] = promedio_nota};
-			if (cant_colegios > max_cant_colegios_region) {max_cant_colegios_region = cant_colegios};
-			if (cant_colegios < min_cant_colegios_region) {min_cant_colegios_region = cant_colegios};
-			data_regiones.push({
-				Nombre: nombre_region, 
-				N_Colegios: region.N_Colegios, 
-				Asistencia_Promedio: asistencia_promedio,
-				Promedio_Notas: promedio_nota, 
-				Promedio_Mujeres: promedio_mujeres, 
-				Promedio_Hombres: promedio_hombres, 
-				// Edad_Promedio: edad_promedio,
-				Longitude: +region.Longitude, 
-				Latitude: +region.Latitude, 
-			})
-			for (var j = 0; j < Object.keys(region.comunas).length; j++) {
-				nombre_comuna = Object.keys(region.comunas)[j];
-				comuna = region.comunas[nombre_comuna];
 
-				promedio_mujeres = (comuna.Suma_Nota_Mujeres/comuna.N_Cursos_Mujeres);
-				promedio_hombres = (comuna.Suma_Nota_Hombres/comuna.N_Cursos_Hombres);
-				promedio_nota = (comuna.Suma_Nota_Promedio/comuna.N_Cursos);
-				asistencia_promedio = (comuna.Suma_Asistencia_Promedio/comuna.N_Cursos);
-				edad_promedio = (comuna.Suma_Edad_Promedio/comuna.N_Cursos);
+			// se buscan los datos maximos y minimos de n_colegios y promedios
+			// ademas se guarda la data en data_regiones y data_comunas (se guarda Nombre, N_Colegios, Promedio_Notas, Longitude, Latitude)
+			for (var i = 0; i < Object.keys(promedio_data).length; i++) {
+				nombre_region = Object.keys(promedio_data)[i]
+				region = promedio_data[nombre_region]
 
-				cant_colegios = comuna.N_Colegios;
-				// if (promedio_nota > max_nota_comuna) {max_nota_comuna = promedio_nota};
-				// if (promedio_nota < min_nota_comuna) {min_nota_comuna = promedio_nota};
-				if (promedio_nota > max_nota["promedio_comuna"]) {max_nota["promedio_comuna"] = promedio_nota};
-				if (promedio_nota < min_nota["promedio_comuna"]) {min_nota["promedio_comuna"] = promedio_nota};
-				if (promedio_mujeres > max_nota["mujer_comuna"]) {max_nota["mujer_comuna"] = promedio_mujeres};
-				if (promedio_mujeres < min_nota["mujer_comuna"]) {min_nota["mujer_comuna"] = promedio_mujeres};
-				if (promedio_hombres > max_nota["hombre_comuna"]) {max_nota["hombre_comuna"] = promedio_hombres};
-				if (promedio_hombres < min_nota["hombre_comuna"]) {min_nota["hombre_comuna"] = promedio_hombres};
-				if (Math.max(promedio_nota, promedio_mujeres, promedio_hombres) > max_nota["total_comuna"]){
-					max_nota["total_comuna"] = Math.max(promedio_nota, promedio_mujeres, promedio_hombres)
+				promedio_mujeres = (region.Suma_Nota_Mujeres/region.N_Cursos_Mujeres);
+				promedio_hombres = (region.Suma_Nota_Hombres/region.N_Cursos_Hombres);
+				promedio_nota = (region.Suma_Nota_Promedio/region.N_Cursos);
+				asistencia_promedio = (region.Suma_Asistencia_Promedio/region.N_Cursos);
+				// edad_promedio = (region.Suma_Edad_Promedio/region.N_Cursos);
+
+				cant_colegios = region.N_Colegios;
+				// if (promedio_nota > max_nota_region) {max_nota_region = promedio_nota};
+				// if (promedio_nota < min_nota_region) {min_nota_region = promedio_nota};
+				if (promedio_nota > max_nota["promedio_region"]) {max_nota["promedio_region"] = promedio_nota};
+				if (promedio_nota < min_nota["promedio_region"]) {min_nota["promedio_region"] = promedio_nota};
+				if (promedio_mujeres > max_nota["mujer_region"]) {max_nota["mujer_region"] = promedio_mujeres};
+				if (promedio_mujeres < min_nota["mujer_region"]) {min_nota["mujer_region"] = promedio_mujeres};
+				if (promedio_hombres > max_nota["hombre_region"]) {max_nota["hombre_region"] = promedio_hombres};
+				if (promedio_hombres < min_nota["hombre_region"]) {min_nota["hombre_region"] = promedio_hombres};
+				if (Math.max(promedio_nota, promedio_mujeres, promedio_hombres) > max_nota["total_region"]){
+					max_nota["total_region"] = Math.max(promedio_nota, promedio_mujeres, promedio_hombres)
 				};
-				if (Math.min(promedio_nota, promedio_mujeres, promedio_hombres) < min_nota["total_comuna"]){
-					min_nota["total_comuna"] = Math.min(promedio_nota, promedio_mujeres, promedio_hombres)
+				if (Math.min(promedio_nota, promedio_mujeres, promedio_hombres) < min_nota["total_region"]){
+					min_nota["total_region"] = Math.min(promedio_nota, promedio_mujeres, promedio_hombres)
 				};
-				if (cant_colegios > max_cant_colegios_comuna) {max_cant_colegios_comuna = cant_colegios};
-				if (cant_colegios < min_cant_colegios_comuna) {min_cant_colegios_comuna = cant_colegios};
-				data_comunas.push({
-					Nombre: nombre_comuna, 
-					Region: nombre_region,
-					N_Colegios: comuna.N_Colegios, 
-					Asistencia_Promedio: asistencia_promedio,
+				if (promedio_nota < min_nota["total_region"]) {min_nota["total_region"] = promedio_nota};
+				if (cant_colegios > max_cant_colegios_region) {max_cant_colegios_region = cant_colegios};
+				if (cant_colegios < min_cant_colegios_region) {min_cant_colegios_region = cant_colegios};
+				data_regiones.push({
+					Nombre: nombre_region, 
+					N_Colegios: region.N_Colegios, 
 					Promedio_Notas: promedio_nota, 
 					Promedio_Mujeres: promedio_mujeres, 
 					Promedio_Hombres: promedio_hombres, 
-					Edad_Promedio: edad_promedio,
-					Longitude: +comuna.Longitude, 
-					Latitude: +comuna.Latitude
+					Asistencia_Promedio: asistencia_promedio,
+					// Edad_Promedio: edad_promedio,
+					Longitude: +region.Longitude, 
+					Latitude: +region.Latitude, 
 				})
+				for (var j = 0; j < Object.keys(region.comunas).length; j++) {
+					nombre_comuna = Object.keys(region.comunas)[j];
+					comuna = region.comunas[nombre_comuna];
+
+					promedio_mujeres = (comuna.Suma_Nota_Mujeres/comuna.N_Cursos_Mujeres);
+					promedio_hombres = (comuna.Suma_Nota_Hombres/comuna.N_Cursos_Hombres);
+					promedio_nota = (comuna.Suma_Nota_Promedio/comuna.N_Cursos);
+					asistencia_promedio = (comuna.Suma_Asistencia_Promedio/comuna.N_Cursos);
+					edad_promedio = (comuna.Suma_Edad_Promedio/comuna.N_Cursos);
+
+					cant_colegios = comuna.N_Colegios;
+					// if (promedio_nota > max_nota_comuna) {max_nota_comuna = promedio_nota};
+					// if (promedio_nota < min_nota_comuna) {min_nota_comuna = promedio_nota};
+					if (promedio_nota > max_nota["promedio_comuna"]) {max_nota["promedio_comuna"] = promedio_nota};
+					if (promedio_nota < min_nota["promedio_comuna"]) {min_nota["promedio_comuna"] = promedio_nota};
+					if (promedio_mujeres > max_nota["mujer_comuna"]) {max_nota["mujer_comuna"] = promedio_mujeres};
+					if (promedio_mujeres < min_nota["mujer_comuna"]) {min_nota["mujer_comuna"] = promedio_mujeres};
+					if (promedio_hombres > max_nota["hombre_comuna"]) {max_nota["hombre_comuna"] = promedio_hombres};
+					if (promedio_hombres < min_nota["hombre_comuna"]) {min_nota["hombre_comuna"] = promedio_hombres};
+					if (Math.max(promedio_nota, promedio_mujeres, promedio_hombres) > max_nota["total_comuna"]){
+						max_nota["total_comuna"] = Math.max(promedio_nota, promedio_mujeres, promedio_hombres)
+					};
+					if (Math.min(promedio_nota, promedio_mujeres, promedio_hombres) < min_nota["total_comuna"]){
+						min_nota["total_comuna"] = Math.min(promedio_nota, promedio_mujeres, promedio_hombres)
+					};
+					if (cant_colegios > max_cant_colegios_comuna) {max_cant_colegios_comuna = cant_colegios};
+					if (cant_colegios < min_cant_colegios_comuna) {min_cant_colegios_comuna = cant_colegios};
+					data_comunas.push({
+						Nombre: nombre_comuna, 
+						Region: nombre_region,
+						N_Colegios: comuna.N_Colegios, 
+						Promedio_Notas: promedio_nota, 
+						Promedio_Mujeres: promedio_mujeres, 
+						Promedio_Hombres: promedio_hombres, 
+						Asistencia_Promedio: asistencia_promedio,
+						Edad_Promedio: edad_promedio,
+						Longitude: +comuna.Longitude, 
+						Latitude: +comuna.Latitude
+					})
+				}
+				// }
 			}
-			// }
-		}
 
-			// max_promedio_nota = max_nota["promedio_region"];
-			// min_promedio_nota = min_nota["promedio_region"];
-			max_nota["selected_promedio"] = max_nota["promedio_region"];
-			min_nota["selected_promedio"] = min_nota["promedio_region"];
-			createMap(data_regiones)
+			// max_nota["selected_promedio"] = max_nota["promedio_region"];
+			// min_nota["selected_promedio"] = min_nota["promedio_region"];
+			// createMap(data_regiones)
 
-		createCoordParalelas(data_regiones)
+			// createCoordParalelas(data_regiones)
 
-	});
+			// console.log("charged")
+			$("#loader").hide()
+			
+			if (filtros.zoom == "Region"){
+				data = data_regiones
+			}
+			else{
+				data = data_comunas
+			}
+			actualizar_data()
+			// window.clearTimeout(actualizar_visualizaciones);
+			// actualizar_visualizaciones = setTimeout(actualizar_data, 1000);
+		});
+	}
+
+	read_dataset() //llamada inicial
 
 	// recopilacion de datos y se guardan en "promedio_data", por cada fila del csv se ejecuta el siguiente codigo
 	function type(d) {
@@ -718,10 +780,12 @@ filtros = {
 			.attr('class', 'd3-tip')
 			.offset([-10, 0])
 			.html(function(d) { 
+				window.clearTimeout(actualizar_visualizaciones);
+				actualizar_visualizaciones = setTimeout(function(t) {
+					actualizar_data(map=false)
+				}, 2000);
 				foreground.
 					style("stroke", function(c){
-						window.clearTimeout(actualizar_visualizaciones);
-						actualizar_visualizaciones = setTimeout(actualizar_data, 1000);
 
 						if (c.Nombre == d.Nombre){
 							return "#F00"
@@ -930,30 +994,30 @@ filtros = {
 
 	function getScreenBounds() {
 		izq_arriba = getPoint(0,0);
-	  der_abajo = getPoint();
-	  latitudes = {
-	  	"Max": Math.max(izq_arriba["Latitude"], der_abajo["Latitude"]), 
-	  	"Min": Math.min(izq_arriba["Latitude"], der_abajo["Latitude"])
-	  }
-	  longitudes = {
-	  	"Max": Math.max(izq_arriba["Longitude"], der_abajo["Longitude"]), 
-	  	"Min": Math.min(izq_arriba["Longitude"], der_abajo["Longitude"])
-	  }
-	  return {"Latitude": latitudes, "Longitude": longitudes}
+		der_abajo = getPoint();
+		latitudes = {
+			"Max": Math.max(izq_arriba["Latitude"], der_abajo["Latitude"]), 
+			"Min": Math.min(izq_arriba["Latitude"], der_abajo["Latitude"])
+		}
+		longitudes = {
+			"Max": Math.max(izq_arriba["Longitude"], der_abajo["Longitude"]), 
+			"Min": Math.min(izq_arriba["Longitude"], der_abajo["Longitude"])
+		}
+		return {"Latitude": latitudes, "Longitude": longitudes}
 	}
 
 	function getPoint(x,y) {
-	  if (x == null) x = map_width;
-	  if (y == null) y = height;  
-	  var point = points.node().createSVGPoint();
-	  point.x = x, point.y = y;
-	  point = point.matrixTransform(points.node().getScreenCTM().inverse());
-	  return formatLocation(projection.invert([point.x, point.y]), zoom.scale());
+		if (x == null) x = map_width;
+		if (y == null) y = height;  
+		var point = points.node().createSVGPoint();
+		point.x = x, point.y = y;
+		point = point.matrixTransform(points.node().getScreenCTM().inverse());
+		return formatLocation(projection.invert([point.x, point.y]), zoom.scale());
 	}
 
 
 ///////////////////////////////////////////////////////
-//          INICIALIZACION CANVAS DE COORD PARALELAS
+//     INICIALIZACION CANVAS DE COORD PARALELAS
 ///////////////////////////////////////////////////////
 	var tooltip = d3.select("body")
 		.append("div")
@@ -961,7 +1025,7 @@ filtros = {
 		.style("z-index", "10")
 		.style("visibility", "hidden")
 		.text("a simple tooltip")
-		.attr("class","tooltip");
+		.attr("class","tooltip2");
 
 	var margin = {
 		top: 30, 
@@ -1151,8 +1215,10 @@ filtros = {
 	}
 
 	function clearCoordParalelas(){
-		// svg.remove();
-		document.getElementById("coordenadas_paralelas").remove();
+		coordenadas_paralelas = document.getElementById("coordenadas_paralelas")
+		if (coordenadas_paralelas){
+			coordenadas_paralelas.remove();
+		}
 	}
 
 	function position(d) {
@@ -1193,6 +1259,51 @@ filtros = {
 </script>
 
 <div id='my-legend'>
+</div>
+
+<div id="filtros" class="card bg-light mb-3" style="max-width: 18rem;">
+	<div class="card-header">Filtros - Tipo de Colegios<div id="loader"></div></div>
+	<div class="card-body">
+
+		<div class="input-group mb-3">
+			<div class="input-group-prepend">
+				<label class="input-group-text" for="select_ruralidad">Dependencia</label>
+			</div>
+			<select id="dep_colegio" class="custom-select" id="select_dep_colegio" onchange="read_dataset('Dependencia_Colegio',$('#dep_colegio')[0].value);">
+				<option value="null" selected>Todos</option>
+				<option>Municipal</option>
+				<option>Particular Subvencionado</option>
+				<option>Particular Pagado</option>
+				<option>Corporacion de Administracion Delegada</option>
+			</select>
+		</div>
+
+		<div class="input-group mb-3">
+			<div class="input-group-prepend">
+				<label class="input-group-text" for="select_ruralidad">Ruralidad</label>
+			</div>
+			<select id="ruralidad" class="custom-select" id="select_ruralidad" onchange="read_dataset('Ruralidad',$('#ruralidad')[0].value);">
+				<option value="null" selected>Todos</option>
+				<option>Rural</option>
+				<option>Urbano</option>
+			</select>
+		</div>
+
+		<div class="input-group mb-3">
+			<div class="input-group-prepend">
+				<label class="input-group-text" for="select_ruralidad">Año estudio</label>
+			</div>
+			<select id="agno" class="custom-select" id="select_agno" onchange="read_dataset('Agno',$('#agno')[0].value);">
+				<option value="null" selected>Historico</option>
+				<option>2013</option>
+				<option>2014</option>
+				<option>2015</option>
+				<option>2016</option>
+				<option>2017</option>
+			</select>
+		</div>
+
+	</div>
 </div>
 
 </body>
