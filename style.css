@@ -17,15 +17,18 @@
 		background-color: white; 
 	}
 	#texto {
-    	font-size: 3.5rem;
+    	font-size: 3rem;
     	margin: 10px;
 	}
 	#filtros {
 		position: absolute;
 		width: 40%;
 		left: 50%;
-		bottom: 80px;
+		/*bottom: 80px;*/
+		top: calc(45% + 80px);
 		z-index: 100;
+	    font-size: 0.85rem;
+	    margin: 0 !important;
 	}
 	#filtros .card-header {
 		text-align: center;
@@ -181,7 +184,7 @@
 
 		#coordenadas_paralelas{
 			position: absolute; 
-			top: 100px; 
+			top: 80px; 
 			right: 0.5%;
 		}
 
