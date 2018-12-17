@@ -1,0 +1,224 @@
+<style>
+
+	body {
+		margin: 0;
+		overflow-y: hidden;
+
+	}
+	#titulo{
+		position: fixed;
+		top:0px;
+		width: 100%;
+		margin: 0;
+		background-color: white; 
+	}
+	#texto {
+    	font-size: 3.5rem;
+    	margin: 10px;
+	}
+	#filtros {
+		position: absolute;
+		width: 40%;
+		left: 50%;
+		bottom: 80px;
+		z-index: 100;
+	}
+	#filtros .card-header {
+		text-align: center;
+	}
+	#loader {
+		float: right;
+		margin: 0.15rem;
+		border: 6px solid #a5a5a5;
+		border-radius: 50%;
+		border-top: 6px solid #3498db;
+		width: 20px;
+		height: 20px;
+		-webkit-animation: spin 1s linear infinite; /* Safari */
+		animation: spin 1s linear infinite;
+    	visibility: visible;
+	}
+
+	/* Safari */
+	@-webkit-keyframes spin {
+		0% { -webkit-transform: rotate(0deg); }
+		100% { -webkit-transform: rotate(360deg); }
+	}
+
+	@keyframes spin {
+		0% { transform: rotate(0deg); }
+		100% { transform: rotate(360deg); }
+	}
+
+	/*mapa*/
+		#container {
+			position: relative;
+			overflow: hidden;
+			background: #ddd;
+			margin: 100px 0 0 0;
+		}
+
+		#map{
+			width:100%;
+			height:100%;
+		}
+
+		#points{
+			width:100%;
+			height:100%;
+			position:relative;
+			z-index:100;
+		}
+
+		.layer {
+			position: absolute;
+		}
+
+		.tile {
+			pointer-events: none;
+			position: absolute;
+			width: 256px;
+			height: 256px;
+			margin: 100px 0 0 0;
+		}
+
+		.zona{
+			opacity: 0.85;
+			/*fill: #ff2200;*/
+		}
+
+		.zona:hover{
+			opacity: 1.0;
+			/*fill: #ff8a00;*/
+		}
+
+		.d3-tip {
+			line-height: 1.5;
+			font-weight: normal;
+			font-family: Helvetica, Arial, sans-serif;
+			font-size:13px;
+			padding: 10px;
+			background: rgba(0, 0, 0, 0.8);
+			color: #fff;
+			border-radius: 3px;
+			position:relative;
+			z-index:101;
+		}
+
+		.d3-tip:after {
+			box-sizing: border-box;
+			display: inline;
+			font-size: 20px;
+			width: 100%;
+			line-height: .5;
+			color: rgba(0, 0, 0, 0.8);
+			content: "\25BC";
+			position: absolute;
+			text-align: center;
+		}
+
+		.d3-tip.n:after {
+			margin: -1px 0 0 0;
+			top: 100%;
+			left: 0;
+		}
+
+		#my-legend {
+			position: absolute;
+			top: 0;
+			z-index: 100;
+			padding: 10px;
+			background-color: rgba(175, 175, 175, 0.7);
+			border-radius: 15px;
+			margin: 100px 3px 3px 3px;
+		}
+		#my-legend #legend-title {
+			text-align: left;
+			margin-bottom: 8px;
+			font-weight: bold;
+			font-size: 90%;
+		}
+		#my-legend #legend-scale ul {
+			margin: 0;
+			padding: 0;
+			float: left;
+			list-style: none;
+		}
+		#my-legend #legend-scale ul li {
+			display: block;
+			float: left;
+			width: 50px;
+			margin-bottom: 6px;
+			text-align: right;
+			font-size: 80%;
+			list-style: none;
+		}
+		#my-legend ul#legend-labels li span {
+			display: block;
+			float: left;
+			height: 15px;
+			width: 50px;
+		}
+		#my-legend #legend-source {
+			font-size: 70%;
+			color: #999;
+			clear: both;
+		}
+		#my-legend a {
+			color: #777;
+		}
+
+	/*coordenadas paralelas*/
+		svg {
+			font: 10px sans-serif;
+			margin: 100px 0 0 0;
+		}
+
+		.background path {
+			fill: none;
+			stroke: #ddd;
+			shape-rendering: crispEdges;
+
+			/*stroke: none;*/
+			/*stroke-width: 20px;*/
+			/*pointer-events: stroke;*/
+		}
+
+		.foreground path {
+			fill: none;
+			/*stroke: steelblue;*/
+			stroke-width: 3px;
+		}
+
+		.brush .extent {
+			fill-opacity: .3;
+			stroke: #fff;
+			shape-rendering: crispEdges;
+		}
+
+		.axis line,
+		.axis path {
+			fill: none;
+			stroke: #000;
+			shape-rendering: crispEdges;
+		}
+
+		.axis text {
+			text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
+			cursor: move;
+		}
+
+		.tooltip2 {
+			font-family: Helvetica, Arial, sans-serif;
+			background-color: rgba(220,220,220,0.8);
+			color: #333;
+			margin: 10px;
+			padding-right: 10px;
+			padding-left: 10px; 
+			padding-top: 10px;
+			padding-bottom: 8px; 
+			-webkit-border-radius:10px;
+			-moz-border-radius:10px;
+			border-radius:10px;
+		}
+</style>
