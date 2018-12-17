@@ -1,230 +1,23 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
+<head>
+	<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
 
-<style>
-
-	body {
-		margin: 0;
-		overflow-y: hidden;
-	}
-	#filtros {
-		position: absolute;
-		width: 20%;
-		left: 30%;
-		bottom: 0px;
-		z-index: 100;
-	}
-	#filtros .card-header {
-		text-align: center;
-	}
-	#loader {
-		float: right;
-		margin: 0.15rem;
-		border: 6px solid #a5a5a5;
-		border-radius: 50%;
-		border-top: 6px solid #3498db;
-		width: 20px;
-		height: 20px;
-		-webkit-animation: spin 1s linear infinite; /* Safari */
-		animation: spin 1s linear infinite;
-    visibility: visible;
-	}
-
-	/* Safari */
-	@-webkit-keyframes spin {
-		0% { -webkit-transform: rotate(0deg); }
-		100% { -webkit-transform: rotate(360deg); }
-	}
-
-	@keyframes spin {
-		0% { transform: rotate(0deg); }
-		100% { transform: rotate(360deg); }
-	}
-
-	/*mapa*/
-		#container {
-			position: relative;
-			overflow: hidden;
-			background: #ddd;
-		}
-
-		#map{
-			width:100%;
-			height:100%;
-		}
-
-		#points{
-			width:100%;
-			height:100%;
-			position:relative;
-			z-index:100;
-		}
-
-		.layer {
-			position: absolute;
-		}
-
-		.tile {
-			pointer-events: none;
-			position: absolute;
-			width: 256px;
-			height: 256px;
-		}
-
-		.zona{
-			opacity: 0.85;
-			/*fill: #ff2200;*/
-		}
-
-		.zona:hover{
-			opacity: 1.0;
-			/*fill: #ff8a00;*/
-		}
-
-		.d3-tip {
-			line-height: 1.5;
-			font-weight: normal;
-			font-family: Helvetica, Arial, sans-serif;
-			font-size:13px;
-			padding: 10px;
-			background: rgba(0, 0, 0, 0.8);
-			color: #fff;
-			border-radius: 3px;
-			position:relative;
-			z-index:101;
-		}
-
-		.d3-tip:after {
-			box-sizing: border-box;
-			display: inline;
-			font-size: 20px;
-			width: 100%;
-			line-height: .5;
-			color: rgba(0, 0, 0, 0.8);
-			content: "\25BC";
-			position: absolute;
-			text-align: center;
-		}
-
-		.d3-tip.n:after {
-			margin: -1px 0 0 0;
-			top: 100%;
-			left: 0;
-		}
-
-		#my-legend {
-			position: absolute;
-			top: 0;
-			z-index: 100;
-			padding: 10px;
-			background-color: rgba(175, 175, 175, 0.7);
-			border-radius: 15px;
-			margin: 3px;
-		}
-		#my-legend #legend-title {
-			text-align: left;
-			margin-bottom: 8px;
-			font-weight: bold;
-			font-size: 90%;
-		}
-		#my-legend #legend-scale ul {
-			margin: 0;
-			padding: 0;
-			float: left;
-			list-style: none;
-		}
-		#my-legend #legend-scale ul li {
-			display: block;
-			float: left;
-			width: 50px;
-			margin-bottom: 6px;
-			text-align: right;
-			font-size: 80%;
-			list-style: none;
-		}
-		#my-legend ul#legend-labels li span {
-			display: block;
-			float: left;
-			height: 15px;
-			width: 50px;
-		}
-		#my-legend #legend-source {
-			font-size: 70%;
-			color: #999;
-			clear: both;
-		}
-		#my-legend a {
-			color: #777;
-		}
-
-	/*coordenadas paralelas*/
-		svg {
-			font: 10px sans-serif;
-		}
-
-		.background path {
-			fill: none;
-			stroke: #ddd;
-			shape-rendering: crispEdges;
-
-			/*stroke: none;*/
-			/*stroke-width: 20px;*/
-			/*pointer-events: stroke;*/
-		}
-
-		.foreground path {
-			fill: none;
-			/*stroke: steelblue;*/
-			stroke-width: 3px;
-		}
-
-		.brush .extent {
-			fill-opacity: .3;
-			stroke: #fff;
-			shape-rendering: crispEdges;
-		}
-
-		.axis line,
-		.axis path {
-			fill: none;
-			stroke: #000;
-			shape-rendering: crispEdges;
-		}
-
-		.axis text {
-			text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
-			cursor: move;
-		}
-
-		.tooltip2 {
-			font-family: Helvetica, Arial, sans-serif;
-			background-color: rgba(220,220,220,0.8);
-			color: #333;
-			margin: 10px;
-			padding-right: 10px;
-			padding-left: 10px; 
-			padding-top: 10px;
-			padding-bottom: 8px; 
-			-webkit-border-radius:10px;
-			-moz-border-radius:10px;
-			border-radius:10px;
-		}
-</style>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+</head>
 <body>
+	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
 
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+	<script src="d3.v3.min.js"></script>
+	<!-- <script src="http://d3js.org/d3.v3.min.js"></script> -->
+	<script src="d3.geo.tile.v0.min.js"></script>
+	<!-- <script src="http://d3js.org/d3.geo.tile.v0.min.js"></script> -->
+	<script src="http://d3js.org/topojson.v1.min.js"></script>
+	<script src="d3.tip.js"></script>
 
-<script src="d3.v3.min.js"></script>
-<!-- <script src="http://d3js.org/d3.v3.min.js"></script> -->
-<script src="d3.geo.tile.v0.min.js"></script>
-<!-- <script src="http://d3js.org/d3.geo.tile.v0.min.js"></script> -->
-<script src="http://d3js.org/topojson.v1.min.js"></script>
-<script src="d3.tip.js"></script>
-
-<script>
+	<script>
 
 /////////////////// Parametros ////////////////////////
 filtros = {
@@ -284,8 +77,8 @@ filtros = {
 	}
 
 	function componentToHex(c) {
-			var hex = c.toString(16);
-			return hex.length == 1 ? "0" + hex : hex;
+		var hex = c.toString(16);
+		return hex.length == 1 ? "0" + hex : hex;
 	}
 
 	function rgbToHex(r, g, b) {
@@ -382,6 +175,10 @@ filtros = {
 			clearCoordParalelas();
 			createCoordParalelas(selected_data);
 		}
+		/*if (bars){
+			clearBars();
+			createBars(selected_data);
+		}*/
 
 		$("#loader").hide();
 		// console.log("data actualizada")
@@ -395,8 +192,8 @@ filtros = {
 ///////////////////////////////////////////////////////
 
 	var width = Math.max(960, window.innerWidth),
-			height = Math.max(500, window.innerHeight),
-			prefix = prefixMatch(["webkit", "ms", "Moz", "O"]);
+		height = Math.max(500, window.innerHeight),
+		prefix = prefixMatch(["webkit", "ms", "Moz", "O"]);
 		
 	color_regiones = {"Arica y Parinacota": "#d98880", //ordenadas de norte a sur
 			"Tarapaca": "#f1948a", 
@@ -853,8 +650,6 @@ filtros = {
 
 
 
-
-
 	d3.json('regiones.topojson', function(error, chile) {
 		d3.select("#points").selectAll("vector").data(topojson.feature(chile, chile.objects["chile-regions"]).features)
 			.enter()
@@ -1095,7 +890,6 @@ filtros = {
 			foreground,
 			svg;
 
-
 	function createCoordParalelas(dataset){
 
 		svg = d3.select("body").append("svg")
@@ -1325,55 +1119,66 @@ filtros = {
 		});
 	}
 
+	function createBars(dataset){
+	}
+
+	function clearBars(){
+	}
+
 </script>
 
-<div id='my-legend'>
-</div>
-
-<div id="filtros" class="card bg-light mb-3" style="max-width: 18rem;">
-	<div class="card-header">Filtros - Tipo de Colegios<div id="loader"></div></div>
-	<div class="card-body">
-
-		<div class="input-group mb-3">
-			<div class="input-group-prepend">
-				<label class="input-group-text" for="select_ruralidad">Dependencia</label>
-			</div>
-			<select id="dep_colegio" class="custom-select" id="select_dep_colegio" onchange="read_dataset('Dependencia_Colegio',$('#dep_colegio')[0].value);">
-				<option value="null" selected>Todos</option>
-				<option>Municipal</option>
-				<option>Particular Subvencionado</option>
-				<option>Particular Pagado</option>
-				<option>Corporacion de Administracion Delegada</option>
-			</select>
-		</div>
-
-		<div class="input-group mb-3">
-			<div class="input-group-prepend">
-				<label class="input-group-text" for="select_ruralidad">Ruralidad</label>
-			</div>
-			<select id="ruralidad" class="custom-select" id="select_ruralidad" onchange="read_dataset('Ruralidad',$('#ruralidad')[0].value);">
-				<option value="null" selected>Todos</option>
-				<option>Rural</option>
-				<option>Urbano</option>
-			</select>
-		</div>
-
-		<div class="input-group mb-3">
-			<div class="input-group-prepend">
-				<label class="input-group-text" for="select_ruralidad">Año estudio</label>
-			</div>
-			<select id="agno" class="custom-select" id="select_agno" onchange="read_dataset('Agno',$('#agno')[0].value);">
-				<option value="null" selected>Historico</option>
-				<option>2013</option>
-				<option>2014</option>
-				<option>2015</option>
-				<option>2016</option>
-				<option>2017</option>
-			</select>
-		</div>
-
+	<div id="titulo">
+		<h1 id="texto"><center>Notas de Chile</center> </h1>
 	</div>
-</div>
+
+	<div id='my-legend'>
+	</div>
+
+	<div id="filtros" class="card bg-light mb-3" >
+		<div class="card-header">Filtros - Tipo de Colegios
+			<div id="loader"></div>
+		</div>
+		<div class="card-body">
+
+			<div class="input-group mb-3">
+				<div class="input-group-prepend">
+					<label class="input-group-text" for="select_ruralidad">Dependencia</label>
+				</div>
+				<select id="dep_colegio" class="custom-select" id="select_dep_colegio" onchange="read_dataset('Dependencia_Colegio',$('#dep_colegio')[0].value);">
+					<option value="null" selected>Todos</option>
+					<option>Municipal</option>
+					<option>Particular Subvencionado</option>
+					<option>Particular Pagado</option>
+					<option>Corporacion de Administracion Delegada</option>
+				</select>
+			</div>
+
+			<div class="input-group mb-3">
+				<div class="input-group-prepend">
+					<label class="input-group-text" for="select_ruralidad">Ruralidad</label>
+				</div>
+				<select id="ruralidad" class="custom-select" id="select_ruralidad" onchange="read_dataset('Ruralidad',$('#ruralidad')[0].value);">
+					<option value="null" selected>Todos</option>
+					<option>Rural</option>
+					<option>Urbano</option>
+				</select>
+			</div>
+
+			<div class="input-group mb-3">
+				<div class="input-group-prepend">
+					<label class="input-group-text" for="select_ruralidad">Año estudio</label>
+				</div>
+				<select id="agno" class="custom-select" id="select_agno" onchange="read_dataset('Agno',$('#agno')[0].value);">
+					<option value="null" selected>Historico</option>
+					<option>2013</option>
+					<option>2014</option>
+					<option>2015</option>
+					<option>2016</option>
+					<option>2017</option>
+				</select>
+			</div>
+		</div>
+	</div>
 
 </body>
 </html>
