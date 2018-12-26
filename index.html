@@ -962,10 +962,38 @@ filtros = {
 					return "stroke: "+color_regiones[d.Nombre]
 				}
 			})
-			.on("mouseover", function(n){
+			.on("mouseover", function(d){
 				d3.select(this).transition().duration(100)
 				.style({'stroke' : '#F00'});
-				tooltip.text(n.Nombre);
+				d3.select("#points").selectAll("circle").
+					attr("r", function(c){
+						// console.log(d)
+						if (c.Nombre == d.Nombre){
+							if (filtros.zoom == "Region") {
+								rescale = rescale_cant_colegios(c.N_Colegios, max_cant_colegios_region, min_cant_colegios_region, mult)
+								let escala = rescale*.001*zoom.scale();
+								return escala;
+							}
+							else if (filtros.zoom == "Comuna"){
+								rescale = rescale_cant_colegios(c.N_Colegios, max_cant_colegios_comuna, min_cant_colegios_comuna, mult)
+								let escala = rescale*.00005*zoom.scale();
+								return escala;
+							}
+						}
+						else{
+							if (filtros.zoom == "Region") {
+								rescale = rescale_cant_colegios(c.N_Colegios, max_cant_colegios_region, min_cant_colegios_region, mult)
+								let escala = rescale*.0005*zoom.scale();
+								return escala;
+							}
+							else if (filtros.zoom == "Comuna"){
+								rescale = rescale_cant_colegios(c.N_Colegios, max_cant_colegios_comuna, min_cant_colegios_comuna, mult)
+								let escala = rescale*.000025*zoom.scale();
+								return escala;
+							}
+						}
+					})
+				tooltip.text(d.Nombre);
 				return tooltip.style("visibility", "visible");
 			})
 			.on("mousemove", function(){return tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px");})
@@ -988,7 +1016,19 @@ filtros = {
 					}
 					return "stroke: rgb("+color+")"
 				})
-				// .style({'stroke-width' : '2'});
+				d3.select("#points").selectAll("circle").
+					attr("r", function(c){
+						if (filtros.zoom == "Region") {
+							rescale = rescale_cant_colegios(c.N_Colegios, max_cant_colegios_region, min_cant_colegios_region, mult)
+							let escala = rescale*.0005*zoom.scale();
+							return escala;
+						}
+						else if (filtros.zoom == "Comuna"){
+							rescale = rescale_cant_colegios(c.N_Colegios, max_cant_colegios_comuna, min_cant_colegios_comuna, mult)
+							let escala = rescale*.000025*zoom.scale();
+							return escala;
+						}
+					})
 				return tooltip.style("visibility", "hidden");
 			});
 
